@@ -1,0 +1,1663 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Nexo | نکسو | نسل جدید محتوا</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;200;300;400;500;600;700;800;900&display=swap');
+        :root {
+            --bg-primary: #f8fafc; --bg-secondary: #ffffff; --text-primary: #0f172a; --text-secondary: #64748b;
+            --accent: #6366f1; --accent-glow: rgba(99, 102, 241, 0.4);
+            --gradient-1: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
+            --gradient-2: linear-gradient(135deg, #f43f5e 0%, #ec4899 50%, #d946ef 100%);
+            --gradient-3: linear-gradient(135deg, #10b981 0%, #14b8a6 50%, #06b6d4 100%);
+            --danger: #ef4444; --success: #10b981; --warning: #f59e0b;
+            --shadow-xl: 0 20px 50px rgba(0,0,0,0.15); --shadow-3xl: 0 40px 100px rgba(0,0,0,0.25);
+            --surface-1: rgba(255,255,255,0.5); --surface-2: rgba(255,255,255,0.7); --surface-3: rgba(255,255,255,0.9);
+            --chat-bg: #f0f4f8; --chat-bubble-user: #6366f1; --chat-bubble-admin: #e2e8f0;
+        }
+        .dark-mode {
+            --bg-primary: #030712; --bg-secondary: #0f172a; --text-primary: #f1f5f9; --text-secondary: #94a3b8;
+            --surface-1: rgba(15,23,42,0.5); --surface-2: rgba(15,23,42,0.7); --surface-3: rgba(15,23,42,0.9);
+            --chat-bg: #1a1a2e; --chat-bubble-user: #6366f1; --chat-bubble-admin: #334155;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Vazirmatn', sans-serif; background: var(--bg-primary); color: var(--text-primary); transition: 0.3s; min-height: 100vh; overflow-x: hidden; }
+        #auth-container { width: 100%; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; z-index: 1; position: relative; }
+        .auth-card { background: var(--surface-2); backdrop-filter: blur(30px); border: 1px solid rgba(148,163,184,0.2); border-radius: 40px; padding: 45px 35px; width: 100%; max-width: 440px; box-shadow: var(--shadow-3xl); }
+        .auth-card h2 { text-align: center; font-size: 32px; font-weight: 900; background: var(--gradient-1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .auth-subtitle { text-align: center; color: var(--text-secondary); margin-bottom: 32px; }
+        .form-group { margin-bottom: 22px; }
+        .form-group label { display: block; margin-bottom: 10px; color: var(--text-secondary); font-size: 13px; font-weight: 600; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 14px 18px; border: 2px solid rgba(148,163,184,0.2); border-radius: 18px; font-size: 14px; background: var(--surface-1); color: var(--text-primary); font-family: 'Vazirmatn', sans-serif; }
+        .btn { width: 100%; padding: 17px; border: none; border-radius: 20px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 14px; font-family: 'Vazirmatn', sans-serif; transition: 0.3s; }
+        .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn:active { transform: translateY(0); }
+        .btn-primary { background: var(--gradient-1); color: white; }
+        .btn-danger { background: var(--gradient-2); color: white; }
+        .btn-success { background: var(--gradient-3); color: white; }
+        .btn-sm { padding: 10px 18px; font-size: 13px; border-radius: 14px; width: auto; }
+        .toggle-text { text-align: center; margin-top: 26px; color: var(--text-secondary); font-size: 14px; display: block; }
+        .toggle-text a { color: var(--accent); cursor: pointer; font-weight: 700; text-decoration: none; }
+        .toggle-text a:hover { text-decoration: underline; }
+        #app-container { display: none; width: 100%; min-height: 100vh; position: relative; z-index: 1; padding-bottom: 90px; }
+        .header { background: var(--surface-2); backdrop-filter: blur(30px); padding: 18px 24px; position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; }
+        .header-title { font-size: 20px; font-weight: 900; background: var(--gradient-1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .tab-content { display: none; padding: 24px 20px; }
+        .tab-content.active { display: block; }
+        .bottom-nav { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); width: calc(100% - 32px); max-width: 540px; background: var(--surface-2); backdrop-filter: blur(30px); display: flex; justify-content: space-evenly; padding: 6px 4px; box-shadow: var(--shadow-3xl); z-index: 1000; border: 1px solid rgba(148,163,184,0.2); border-radius: 24px; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; color: var(--text-secondary); padding: 8px 12px; border-radius: 20px; flex: 1; transition: 0.3s; font-size: 11px; }
+        .nav-item.active { color: white; background: var(--gradient-1); }
+        .nav-item span { font-size: 22px; margin-bottom: 2px; }
+        .nav-item p { font-size: 10px; margin: 0; font-weight: 700; }
+        .post-card, .news-card, .mod-card { background: var(--surface-2); backdrop-filter: blur(30px); border: 1px solid rgba(148,163,184,0.2); border-radius: 28px; padding: 24px; margin-bottom: 18px; box-shadow: var(--shadow-xl); }
+        .card-actions { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
+        .action-btn { padding: 8px 16px; border-radius: 12px; border: none; cursor: pointer; font-size: 12px; font-weight: 700; font-family: 'Vazirmatn', sans-serif; }
+        .edit-btn { background: rgba(99,102,241,0.12); color: var(--accent); }
+        .delete-btn { background: rgba(239,68,68,0.12); color: var(--danger); }
+        .post-card img, .post-card video { width: 100%; border-radius: 20px; margin-top: 14px; max-height: 500px; object-fit: cover; }
+        .post-content-text { line-height: 2; margin: 14px 0; font-size: 15px; }
+        .card-title { font-size: 22px; font-weight: 900; margin-bottom: 10px; background: var(--gradient-1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .card-meta { color: var(--text-secondary); font-size: 12px; margin-top: 16px; display: flex; gap: 12px; flex-wrap: wrap; padding-top: 14px; border-top: 1px solid rgba(148,163,184,0.2); align-items: center; }
+        .view-count { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--text-secondary); }
+        .mod-size { font-size: 13px; color: var(--accent); margin: 8px 0; font-weight: 600; }
+        .download-btn { background: var(--gradient-3); color: white; border: none; padding: 10px 20px; border-radius: 14px; cursor: pointer; font-weight: 700; font-family: 'Vazirmatn', sans-serif; font-size: 13px; display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; }
+        .settings-section { background: var(--surface-2); backdrop-filter: blur(30px); border: 1px solid rgba(148,163,184,0.2); border-radius: 28px; padding: 24px; margin-bottom: 18px; }
+        .toggle-switch { position: relative; display: inline-block; width: 56px; height: 30px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #cbd5e1; transition: 0.3s; border-radius: 34px; }
+        .toggle-slider:before { content: ""; height: 22px; width: 22px; left: 4px; bottom: 4px; background: white; position: absolute; transition: 0.3s; border-radius: 50%; }
+        input:checked + .toggle-slider { background: var(--accent); }
+        input:checked + .toggle-slider:before { transform: translateX(26px); }
+        .modal-overlay { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; backdrop-filter: blur(20px); padding: 20px; overflow-y: auto; }
+        .modal-overlay.show { display: flex; }
+        .modal-content { background: var(--surface-2); backdrop-filter: blur(40px); border: 1px solid rgba(148,163,184,0.2); border-radius: 32px; padding: 30px 26px; width: 100%; max-width: 520px; box-shadow: var(--shadow-3xl); max-height: 90vh; overflow-y: auto; }
+        .modal-content h2 { margin-bottom: 22px; font-weight: 900; font-size: 24px; background: var(--gradient-1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .toast { position: fixed; top: 24px; left: 50%; transform: translateX(-50%); padding: 14px 28px; border-radius: 18px; font-weight: 700; font-size: 14px; z-index: 9999; box-shadow: var(--shadow-3xl); max-width: 90%; text-align: center; animation: slideDown 0.3s ease; }
+        @keyframes slideDown { from { transform: translateX(-50%) translateY(-100px); opacity: 0; } to { transform: translateX(-50%) translateY(0); opacity: 1; } }
+        .toast-success { background: rgba(16,185,129,0.9); color: white; } .toast-error { background: rgba(239,68,68,0.9); color: white; }
+        .toast-info { background: rgba(59,130,246,0.9); color: white; } .toast-warning { background: rgba(245,158,11,0.9); color: white; }
+        .chat-container { display: flex; flex-direction: column; height: 60vh; }
+        .chat-messages { flex: 1; overflow-y: auto; padding: 15px; background: var(--chat-bg); border-radius: 20px; margin-bottom: 15px; display: flex; flex-direction: column; gap: 10px; }
+        .chat-message { max-width: 80%; padding: 12px 16px; border-radius: 18px; font-size: 14px; line-height: 1.6; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .chat-message.user { align-self: flex-end; background: var(--chat-bubble-user); color: white; }
+        .chat-message.admin { align-self: flex-start; background: var(--chat-bubble-admin); }
+        .chat-input-area { display: flex; gap: 10px; }
+        .chat-input-area input { flex: 1; padding: 14px; border: 2px solid rgba(148,163,184,0.2); border-radius: 20px; background: var(--surface-1); color: var(--text-primary); font-family: 'Vazirmatn', sans-serif; }
+        .chat-input-area button { padding: 14px 24px; border-radius: 20px; border: none; background: var(--gradient-1); color: white; font-weight: 700; cursor: pointer; }
+        .create-btn { position: fixed; right: 24px; width: 62px; height: 62px; border-radius: 20px; background: var(--gradient-1); color: white; border: none; font-size: 28px; cursor: pointer; box-shadow: 0 15px 40px var(--accent-glow); z-index: 999; display: flex; justify-content: center; align-items: center; transition: 0.3s; }
+        .create-btn:hover { transform: scale(1.05); }
+        #create-post-btn { bottom: 105px; }
+        #create-mod-btn { bottom: 180px; }
+        .admin-badge { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #000; padding: 5px 14px; border-radius: 20px; font-size: 11px; font-weight: 800; }
+        .compression-info { font-size: 12px; color: var(--text-secondary); margin-top: 8px; padding: 10px; background: var(--surface-1); border-radius: 12px; display: none; }
+        .compression-info.show { display: block; }
+        .size-detail { display: flex; justify-content: space-between; margin: 4px 0; }
+        .saved { color: var(--success); font-weight: 700; }
+        .support-btn, .logout-btn-settings { width: 100%; padding: 16px; border-radius: 20px; font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .support-btn { border: 2px solid rgba(99,102,241,0.3); background: rgba(99,102,241,0.05); color: var(--accent); }
+        .logout-btn-settings { border: 2px solid rgba(239,68,68,0.3); background: rgba(239,68,68,0.05); color: var(--danger); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none !important; }
+        .error-text { color: var(--danger); font-size: 12px; margin-top: 4px; display: none; }
+        @media (min-width: 768px) { body { display: flex; justify-content: center; background: #030712; } #auth-container, #app-container { max-width: 540px; background: var(--bg-primary); } .bottom-nav { max-width: 520px; } }
+    </style>
+</head>
+<body>
+
+    <!-- Auth -->
+    <div id="auth-container">
+        <div class="auth-card" id="login-form">
+            <h2>⚡ Nexo</h2><p class="auth-subtitle">پلتفرم نسل جدید محتوای دیجیتال</p>
+            <div class="form-group"><label>👤 نام کاربری</label><input type="text" id="login-username" placeholder="نام کاربری را وارد کنید" onkeypress="if(event.key==='Enter')handleLogin()"></div>
+            <div class="form-group"><label>🔒 رمز عبور</label><input type="password" id="login-password" placeholder="رمز عبور را وارد کنید" onkeypress="if(event.key==='Enter')handleLogin()"></div>
+            <button class="btn btn-primary" id="login-btn" onclick="handleLogin()">✨ ورود به نکسو</button>
+            <p class="toggle-text">تازه وارد هستید؟ <a onclick="showRegister()">ثبت‌نام کنید</a></p>
+        </div>
+        <div class="auth-card" id="register-form" style="display:none;">
+            <h2>🌟 عضویت</h2><p class="auth-subtitle">به خانواده نکسو بپیوندید</p>
+            <div class="form-group"><label>👤 نام کاربری</label><input type="text" id="register-username" placeholder="نام کاربری انتخاب کنید" onkeypress="if(event.key==='Enter')handleRegister()"></div>
+            <div class="form-group"><label>🔒 رمز عبور</label><input type="password" id="register-password" placeholder="حداقل ۳ کاراکتر" onkeypress="if(event.key==='Enter')handleRegister()"></div>
+            <button class="btn btn-primary" id="register-btn" onclick="handleRegister()">🎉 شروع ماجراجویی</button>
+            <p class="toggle-text">قبلاً عضو شده‌اید؟ <a onclick="showLogin()">وارد شوید</a></p>
+        </div>
+    </div>
+
+    <!-- App -->
+    <div id="app-container">
+        <div class="header"><span class="header-title" id="header-title">نکسو</span><div><span class="admin-badge" id="admin-badge" style="display:none;">👑 ادمین</span><button class="btn btn-sm" style="background:rgba(239,68,68,0.1);color:var(--danger);" onclick="handleLogout()">🚪</button></div></div>
+        <div id="explore-tab" class="tab-content active"><div id="posts-container"></div><div id="empty-posts" style="text-align:center;padding:100px 20px;display:none;">🖼️<p>هنوز هیچ پستی منتشر نشده</p></div></div>
+        <div id="news-tab" class="tab-content"><div id="news-container"></div><div id="empty-news" style="text-align:center;padding:100px 20px;display:none;">📰<p>خبری برای نمایش وجود ندارد</p></div></div>
+        <div id="mods-tab" class="tab-content"><div id="mods-container"></div><div id="empty-mods" style="text-align:center;padding:100px 20px;display:none;">🎮<p>هنوز هیچ مادی منتشر نشده</p></div></div>
+        <div id="settings-tab" class="tab-content">
+            <div class="settings-section"><h3>⚙️ تنظیمات</h3><div style="display:flex;justify-content:space-between;align-items:center;"><span>🌙 حالت تاریک</span><label class="toggle-switch"><input type="checkbox" id="dark-mode-toggle" onchange="toggleDarkMode()"><span class="toggle-slider"></span></label></div></div>
+            <div class="settings-section"><h3>👤 اطلاعات کاربری</h3><p>👤 <strong id="settings-username"></strong></p><p>🏷️ <span id="settings-role"></span></p>
+                <div style="display:flex;gap:10px;margin-top:10px;"><input type="text" id="new-username-input" placeholder="نام کاربری جدید" style="flex:1;padding:12px;border-radius:16px;border:1px solid rgba(148,163,184,0.2);background:var(--surface-1);color:var(--text-primary);font-family:'Vazirmatn';"><button class="btn btn-sm btn-primary" onclick="changeUsername()">💾</button></div>
+                <p class="error-text" id="username-error">نام کاربری نمی‌تواند خالی باشد</p>
+                <button class="btn btn-sm" style="margin-top:10px;background:transparent;border:1px solid rgba(148,163,184,0.2);color:var(--text-primary);" onclick="changePasswordPrompt()">🔒 تغییر رمز</button>
+            </div>
+            <div class="settings-section" id="support-section" style="display:none;"><h3>💬 پشتیبانی</h3><button class="support-btn" onclick="openSupportChat()">💬 گفتگو با پشتیبانی</button></div>
+            <div class="settings-section" id="admin-support-section" style="display:none;"><h3>📨 پیام‌های پشتیبانی <span id="support-count-badge">۰</span></h3><div id="support-requests-list"></div></div>
+            <div class="settings-section" id="admin-users-section" style="display:none;"><h3>👥 مدیریت کاربران <span id="users-count-badge">۰</span></h3><div id="users-list-container"></div></div>
+            <button class="logout-btn-settings" onclick="handleLogout()">🚪 خروج</button>
+        </div>
+        <div class="bottom-nav">
+            <div class="nav-item active" onclick="switchTab('explore')"><span>🧭</span><p>اکسپلور</p></div>
+            <div class="nav-item" onclick="switchTab('news')"><span>📰</span><p>خبرها</p></div>
+            <div class="nav-item" onclick="switchTab('mods')"><span>🎮</span><p>مادها</p></div>
+            <div class="nav-item" onclick="switchTab('settings')"><span>⚙️</span><p>تنظیمات</p></div>
+        </div>
+        <button class="create-btn" id="create-post-btn" style="display:none;" onclick="openCreateModal()">✚</button>
+        <button class="create-btn" id="create-mod-btn" style="display:none;" onclick="openModModal()">🎮</button>
+    </div>
+
+    <!-- Post Modal -->
+    <div class="modal-overlay" id="create-modal"><div class="modal-content">
+        <h2 id="modal-title">📷 ایجاد پست</h2>
+        <div class="form-group" id="title-group" style="display:none;"><label>📌 عنوان خبر</label><input type="text" id="post-title" placeholder="عنوان خبر را بنویسید..." style="font-size:16px;padding:16px;"></div>
+        <div class="form-group"><label>✍️ متن</label><textarea id="post-content" placeholder="محتوای خود را اینجا بنویسید..." rows="4"></textarea></div>
+        <div class="form-group" id="image-quality-group" style="display:none;"><label>🗜️ کیفیت</label><select id="image-quality" onchange="recompressImage()"><option value="0.3">زیاد</option><option value="0.5" selected>متوسط</option><option value="0.7">کم</option><option value="0.9">بدون فشرده</option></select></div>
+        <div class="form-group"><label>🖼️ تصویر</label><input type="file" id="image-upload" accept="image/*" onchange="previewMedia('image')"></div>
+        <div class="form-group"><label>🎥 ویدیو (حداکثر ۵۰ مگابایت)</label><input type="file" id="video-upload" accept="video/*" onchange="previewMedia('video')"></div>
+        <div class="compression-info" id="compression-info"><div class="size-detail"><span>📦 اصلی:</span><span id="original-size">-</span></div><div class="size-detail"><span>🗜️ فشرده:</span><span id="compressed-size">-</span></div><div class="size-detail saved"><span>💾 صرفه‌جویی:</span><span id="saved-size">-</span></div></div>
+        <div id="media-preview" style="margin:12px 0;"></div>
+        <input type="hidden" id="edit-id"><input type="hidden" id="edit-type">
+        <button class="btn btn-success" id="save-post-btn" onclick="savePost()">🚀 انتشار</button>
+        <button class="btn btn-danger" onclick="closeCreateModal()">❌ لغو</button>
+    </div></div>
+
+    <!-- Password Modal -->
+    <div class="modal-overlay" id="password-modal"><div class="modal-content">
+        <h2>🔒 تغییر رمز</h2>
+        <div class="form-group"><label>رمز فعلی</label><input type="password" id="current-password" placeholder="رمز فعلی را وارد کنید"></div>
+        <div class="form-group"><label>رمز جدید (حداقل ۳ کاراکتر)</label><input type="password" id="new-password" placeholder="رمز جدید را وارد کنید"></div>
+        <div class="form-group"><label>تکرار رمز جدید</label><input type="password" id="confirm-password" placeholder="رمز جدید را تکرار کنید"></div>
+        <button class="btn btn-success" onclick="changePassword()">💾 ذخیره</button>
+        <button class="btn btn-danger" onclick="closePasswordModal()">❌ لغو</button>
+    </div></div>
+
+    <!-- Chat Modal -->
+    <div class="modal-overlay" id="support-chat-modal"><div class="modal-content">
+        <h2>💬 پشتیبانی</h2><p id="chat-partner-info"></p>
+        <div class="chat-container"><div class="chat-messages" id="chat-messages"></div>
+        <div class="chat-input-area"><input type="text" id="chat-input" placeholder="پیام..." onkeypress="if(event.key==='Enter')sendChatMessage()"><button onclick="sendChatMessage()">📨</button></div></div>
+        <button class="btn btn-danger" onclick="closeSupportChat()" style="margin-top:10px;">❌ بستن</button>
+    </div></div>
+
+    <!-- Mod Modal -->
+    <div class="modal-overlay" id="mod-modal"><div class="modal-content">
+        <h2 id="mod-modal-title">🎮 افزودن ماد</h2>
+        <div class="form-group"><label>🎮 نام ماد</label><input type="text" id="mod-name" placeholder="اسم ماد رو اینجا بنویس..."></div>
+        <div class="form-group"><label>📝 توضیحات</label><textarea id="mod-desc" placeholder="یه توضیح کوتاه درباره ماد..." rows="3"></textarea></div>
+        <div class="form-group"><label>📂 فایل ماد (zip/rar) - حداکثر ۱۰ مگابایت</label><input type="file" id="mod-file" accept=".zip,.rar,.7z" onchange="previewModFile()"></div>
+        <div class="compression-info" id="mod-compression-info"><div class="size-detail"><span>📦 اصلی:</span><span id="mod-original-size">-</span></div><div class="size-detail"><span>📦 ذخیره:</span><span id="mod-base64-size">-</span></div></div>
+        <input type="hidden" id="mod-edit-id">
+        <button class="btn btn-success" id="save-mod-btn" onclick="saveMod()">🚀 انتشار</button>
+        <button class="btn btn-danger" onclick="closeModModal()">❌ لغو</button>
+    </div></div>
+
+    <script>
+        // ⚠️ این کلید باید در محیط Production عوض شود
+        const SUPABASE_URL = 'https://bifmxjfkzqrmonlgfaze.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_xeShHxWF2PuehQJyF2Wphw_Ur0nngoM';
+        const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const SUPER_ADMIN = 'admin';
+        const POLL_INTERVAL_MS = 60000;
+        const MAX_VIDEO_SIZE = 50 * 1024 * 1024; // ۵۰ مگابایت
+        const MAX_MOD_SIZE = 10 * 1024 * 1024;   // ۱۰ مگابایت
+
+        window.currentUser = null;
+        window.currentTab = 'explore';
+        window.pollInterval = null;
+        window.activeSupportChat = null;
+        window.isSaving = false;
+        window.isEditing = false;
+        window.isEditingMod = false;
+        window.createMode = 'post';
+        window.originalImageFile = null;
+        window.compressedImageData = null;
+        window.originalFileSize = 0;
+        window.modFileBase64 = null;
+
+        window.cachedPostIds = new Set();
+        window.cachedNewsIds = new Set();
+        window.cachedModIds = new Set();
+        window.cachedUsersJson = '';
+        window.cachedChatJson = '';
+
+        function showToast(m, t) {
+            var existing = document.querySelectorAll('.toast');
+            for(var i=0; i<existing.length; i++) existing[i].remove();
+            
+            var n = document.createElement('div');
+            n.className = 'toast toast-' + (t || 'info');
+            n.textContent = m;
+            document.body.appendChild(n);
+            
+            setTimeout(function() {
+                n.style.opacity = '0';
+                n.style.transition = 'opacity 0.3s';
+                setTimeout(function() { if(n.parentNode) n.remove(); }, 300);
+            }, 3000);
+        }
+
+        function isSuperAdmin(u) { return u === SUPER_ADMIN; }
+
+        function canEditPost(author) {
+            if(!window.currentUser || window.currentUser.role !== 'admin') return false;
+            return isSuperAdmin(window.currentUser.username) || author === window.currentUser.username;
+        }
+
+        function formatBytes(b) {
+            if(!b || b < 0 || isNaN(b)) return '0 B';
+            if(b < 1024) return b + ' B';
+            if(b < 1048576) return (b/1024).toFixed(1) + ' KB';
+            return (b/1048576).toFixed(2) + ' MB';
+        }
+
+        function escapeHtml(t) {
+            if(!t) return '';
+            var d = document.createElement('div');
+            d.textContent = t;
+            return d.innerHTML;
+        }
+
+        function validateInput(input, minLength) {
+            return input && input.trim().length >= (minLength || 1);
+        }
+
+        // Auth Functions
+        function showRegister() {
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('register-form').style.display = 'block';
+            document.getElementById('register-username').focus();
+        }
+
+        function showLogin() {
+            document.getElementById('register-form').style.display = 'none';
+            document.getElementById('login-form').style.display = 'block';
+            document.getElementById('login-username').focus();
+        }
+
+        async function handleLogin() {
+            var u = document.getElementById('login-username').value.trim();
+            var p = document.getElementById('login-password').value.trim();
+            
+            if(!u || !p) {
+                showToast('لطفاً تمام فیلدها را پر کنید', 'error');
+                return;
+            }
+
+            var btn = document.getElementById('login-btn');
+            btn.disabled = true;
+            btn.textContent = '⏳ در حال ورود...';
+
+            try {
+                var res = await sb.from('users').select('*').eq('username', u).eq('password', p).single();
+                
+                if(res.data && !res.error) {
+                    window.currentUser = res.data;
+                    localStorage.setItem('vibeflow_currentUser', JSON.stringify(res.data));
+                    showApp();
+                    startLivePolling();
+                    showToast('خوش آمدید! 🎉', 'success');
+                } else {
+                    showToast('نام کاربری یا رمز عبور اشتباه است', 'error');
+                }
+            } catch(e) {
+                showToast('خطا در برقراری ارتباط با سرور', 'error');
+                console.error('Login error:', e);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '✨ ورود به نکسو';
+            }
+        }
+
+        async function handleRegister() {
+            var u = document.getElementById('register-username').value.trim();
+            var p = document.getElementById('register-password').value.trim();
+            
+            if(!u || !p) {
+                showToast('لطفاً تمام فیلدها را پر کنید', 'error');
+                return;
+            }
+            
+            if(p.length < 3) {
+                showToast('رمز عبور باید حداقل ۳ کاراکتر باشد', 'error');
+                return;
+            }
+            
+            if(u === SUPER_ADMIN) {
+                showToast('این نام کاربری رزرو شده است', 'error');
+                return;
+            }
+
+            if(u.length < 3) {
+                showToast('نام کاربری باید حداقل ۳ کاراکتر باشد', 'error');
+                return;
+            }
+
+            var btn = document.getElementById('register-btn');
+            btn.disabled = true;
+            btn.textContent = '⏳ در حال ثبت‌نام...';
+
+            try {
+                var ex = await sb.from('users').select('*').eq('username', u).single();
+                
+                if(ex.data) {
+                    showToast('این نام کاربری قبلاً ثبت شده است', 'error');
+                    btn.disabled = false;
+                    btn.textContent = '🎉 شروع ماجراجویی';
+                    return;
+                }
+
+                var res = await sb.from('users').insert([{
+                    username: u,
+                    password: p,
+                    role: 'user'
+                }]).select().single();
+
+                if(res.data && !res.error) {
+                    window.currentUser = res.data;
+                    localStorage.setItem('vibeflow_currentUser', JSON.stringify(res.data));
+                    showApp();
+                    startLivePolling();
+                    showToast('ثبت‌نام با موفقیت انجام شد! 🎉', 'success');
+                } else {
+                    showToast('خطا در ثبت‌نام. لطفاً دوباره تلاش کنید', 'error');
+                }
+            } catch(e) {
+                showToast('خطا در برقراری ارتباط با سرور', 'error');
+                console.error('Register error:', e);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🎉 شروع ماجراجویی';
+            }
+        }
+
+        function handleLogout() {
+            if(!confirm('آیا مطمئن هستید که می‌خواهید خارج شوید؟')) return;
+            
+            stopLivePolling();
+            localStorage.removeItem('vibeflow_currentUser');
+            window.currentUser = null;
+            window.cachedPostIds.clear();
+            window.cachedNewsIds.clear();
+            window.cachedModIds.clear();
+            window.cachedUsersJson = '';
+            window.cachedChatJson = '';
+            
+            document.getElementById('app-container').style.display = 'none';
+            document.getElementById('auth-container').style.display = 'flex';
+            document.getElementById('login-username').value = '';
+            document.getElementById('login-password').value = '';
+            
+            showToast('با موفقیت خارج شدید', 'info');
+        }
+
+        // User Management
+        async function promoteToAdmin(u) {
+            if(!isSuperAdmin(window.currentUser?.username)) {
+                showToast('فقط ادمین اصلی می‌تواند کاربران را ارتقا دهد', 'error');
+                return;
+            }
+            
+            try {
+                await sb.from('users').update({ role: 'admin' }).eq('username', u);
+                await loadUsersList();
+                showToast('کاربر ' + u + ' به ادمین ارتقا یافت', 'success');
+            } catch(e) {
+                showToast('خطا در ارتقای کاربر', 'error');
+                console.error(e);
+            }
+        }
+
+        async function demoteToUser(u) {
+            if(!isSuperAdmin(window.currentUser?.username)) {
+                showToast('فقط ادمین اصلی می‌تواند کاربران را تنزل دهد', 'error');
+                return;
+            }
+            
+            if(isSuperAdmin(u)) {
+                showToast('امکان تنزل ادمین اصلی وجود ندارد', 'warning');
+                return;
+            }
+            
+            try {
+                await sb.from('users').update({ role: 'user' }).eq('username', u);
+                await loadUsersList();
+                showToast('کاربر ' + u + ' به کاربر عادی تبدیل شد', 'success');
+            } catch(e) {
+                showToast('خطا در تنزل کاربر', 'error');
+                console.error(e);
+            }
+        }
+
+        async function deleteUser(u) {
+            if(!isSuperAdmin(window.currentUser?.username)) {
+                showToast('فقط ادمین اصلی می‌تواند کاربران را حذف کند', 'error');
+                return;
+            }
+            
+            if(isSuperAdmin(u)) {
+                showToast('امکان حذف ادمین اصلی وجود ندارد', 'warning');
+                return;
+            }
+            
+            if(!confirm('آیا از حذف کاربر ' + u + ' اطمینان دارید؟ این عملیات قابل بازگشت نیست!')) return;
+            
+            try {
+                await sb.from('users').delete().eq('username', u);
+                await loadUsersList();
+                showToast('کاربر ' + u + ' با موفقیت حذف شد', 'success');
+            } catch(e) {
+                showToast('خطا در حذف کاربر', 'error');
+                console.error(e);
+            }
+        }
+
+        async function loadUsersList() {
+            if(!window.currentUser || window.currentUser.role !== 'admin') {
+                document.getElementById('admin-users-section').style.display = 'none';
+                return;
+            }
+            
+            document.getElementById('admin-users-section').style.display = 'block';
+            
+            try {
+                var res = await sb.from('users').select('*').order('id');
+                if(!res.data) return;
+                
+                var json = JSON.stringify(res.data);
+                if(json === window.cachedUsersJson) return;
+                window.cachedUsersJson = json;
+                
+                document.getElementById('users-count-badge').textContent = res.data.length + ' کاربر';
+                var isMain = isSuperAdmin(window.currentUser.username);
+                
+                document.getElementById('users-list-container').innerHTML = res.data.map(function(u) {
+                    var me = u.username === window.currentUser.username;
+                    var adm = u.role === 'admin';
+                    var sup = isSuperAdmin(u.username);
+                    var act = '';
+                    
+                    if(isMain && !me) {
+                        if(sup) {
+                            act = '<span style="color:#64748b;">🔒 غیرقابل تغییر</span>';
+                        } else if(adm) {
+                            act = '<button class="action-btn" style="color:#64748b;" onclick="demoteToUser(\'' + u.username + '\')">⬇️ تنزل</button>' +
+                                  '<button class="action-btn delete-btn" onclick="deleteUser(\'' + u.username + '\')">🗑️ حذف</button>';
+                        } else {
+                            act = '<button class="action-btn" style="color:#f59e0b;" onclick="promoteToAdmin(\'' + u.username + '\')">👑 ارتقا</button>' +
+                                  '<button class="action-btn delete-btn" onclick="deleteUser(\'' + u.username + '\')">🗑️ حذف</button>';
+                        }
+                    }
+                    
+                    return '<div style="display:flex;justify-content:space-between;align-items:center;padding:12px;margin:8px 0;background:var(--surface-1);border-radius:12px;">' +
+                           '<span>' + escapeHtml(u.username) + ' ' + (sup ? '👑' : (adm ? '👑' : '👤')) + ' ' + (me ? '(شما)' : '') + '</span>' +
+                           '<span>' + act + '</span></div>';
+                }).join('');
+            } catch(e) {
+                console.error('Error loading users:', e);
+            }
+        }
+
+        // UI Functions
+        function showApp() {
+            document.getElementById('auth-container').style.display = 'none';
+            document.getElementById('app-container').style.display = 'block';
+            updateUI();
+            
+            Promise.all([loadPosts(), loadNews(), loadMods(), loadUsersList(), loadSupportRequests()])
+                .catch(e => console.error('Error in initial load:', e));
+            
+            switchTab('explore');
+            
+            var isAdmin = window.currentUser?.role === 'admin';
+            var isSuper = isSuperAdmin(window.currentUser?.username);
+            
+            document.getElementById('admin-badge').style.display = isAdmin ? 'inline-block' : 'none';
+            document.getElementById('admin-users-section').style.display = isAdmin ? 'block' : 'none';
+            document.getElementById('admin-support-section').style.display = isSuper ? 'block' : 'none';
+            document.getElementById('support-section').style.display = !isSuper ? 'block' : 'none';
+        }
+
+        function updateUI() {
+            if(!window.currentUser) return;
+            document.getElementById('settings-username').textContent = 
+                window.currentUser.username + (isSuperAdmin(window.currentUser.username) ? ' 👑' : '');
+            document.getElementById('settings-role').textContent = 
+                isSuperAdmin(window.currentUser.username) ? 'ادمین اصلی' :
+                (window.currentUser.role === 'admin' ? 'ادمین' : 'کاربر عادی');
+        }
+
+        function switchTab(tab) {
+            window.currentTab = tab;
+            
+            var tabs = document.querySelectorAll('.tab-content');
+            for(var i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
+            
+            var navs = document.querySelectorAll('.nav-item');
+            for(var j = 0; j < navs.length; j++) navs[j].classList.remove('active');
+            
+            var targetTab = document.getElementById(tab + '-tab');
+            if(targetTab) targetTab.classList.add('active');
+            
+            var idx = ['explore', 'news', 'mods', 'settings'].indexOf(tab);
+            if(idx >= 0 && navs[idx]) navs[idx].classList.add('active');
+            
+            document.getElementById('header-title').textContent = {
+                explore: 'اکسپلور',
+                news: 'خبرها',
+                mods: 'مادها',
+                settings: 'تنظیمات'
+            }[tab] || 'نکسو';
+            
+            if(tab === 'explore') loadPosts();
+            else if(tab === 'news') loadNews();
+            else if(tab === 'mods') loadMods();
+            else if(tab === 'settings') {
+                updateUI();
+                loadUsersList();
+                loadSupportRequests();
+            }
+            
+            document.getElementById('create-post-btn').style.display = 
+                (window.currentUser?.role === 'admin' && (tab === 'explore' || tab === 'news')) ? 'flex' : 'none';
+            document.getElementById('create-mod-btn').style.display = 
+                (isSuperAdmin(window.currentUser?.username) && tab === 'mods') ? 'flex' : 'none';
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+        }
+
+        // View Counter
+        async function incrementView(type, id) {
+            var key = 'viewed_' + type + '_' + id;
+            if(localStorage.getItem(key)) return;
+            
+            localStorage.setItem(key, '1');
+            
+            try {
+                var res = await sb.from(type).select('views').eq('id', id).single();
+                var v = (res.data?.views || 0) + 1;
+                await sb.from(type).update({ views: v }).eq('id', id);
+            } catch(e) {
+                console.error('Error incrementing view:', e);
+            }
+        }
+
+        // Posts & News Functions
+        function buildPostCard(p) {
+            var showActions = window.currentUser?.role === 'admin' && canEditPost(p.author);
+            var card = '<div class="post-card">';
+            
+            if(showActions) {
+                card += '<div class="card-actions">' +
+                        '<button class="action-btn edit-btn" onclick="editItem(\'posts\',\'' + p.id + '\')">✏️ ویرایش</button>' +
+                        '<button class="action-btn delete-btn" onclick="deleteItem(\'posts\',\'' + p.id + '\')">🗑️ حذف</button>' +
+                        '</div>';
+            }
+            
+            if(p.content) card += '<p class="post-content-text">' + escapeHtml(p.content) + '</p>';
+            if(p.image) card += '<img src="' + p.image + '" loading="lazy" alt="تصویر پست">';
+            if(p.video) card += '<video src="' + p.video + '" controls preload="metadata" style="width:100%;border-radius:20px;margin-top:14px;"></video>';
+            
+            card += '<div class="card-meta">' +
+                    '<span>📅 ' + (p.date || 'نامشخص') + '</span>' +
+                    '<span>👤 ' + escapeHtml(p.author || 'ناشناس') + '</span>' +
+                    '<span class="view-count">👁 ' + (p.views || 0) + '</span>' +
+                    '</div></div>';
+            
+            return card;
+        }
+
+        function buildNewsCard(n) {
+            var showActions = window.currentUser?.role === 'admin' && canEditPost(n.author);
+            var card = '<div class="news-card">';
+            
+            if(showActions) {
+                card += '<div class="card-actions">' +
+                        '<button class="action-btn edit-btn" onclick="editItem(\'news\',\'' + n.id + '\')">✏️ ویرایش</button>' +
+                        '<button class="action-btn delete-btn" onclick="deleteItem(\'news\',\'' + n.id + '\')">🗑️ حذف</button>' +
+                        '</div>';
+            }
+            
+            if(n.title) card += '<div class="card-title">📌 ' + escapeHtml(n.title) + '</div>';
+            if(n.content) card += '<p class="post-content-text">' + escapeHtml(n.content) + '</p>';
+            if(n.image) card += '<img src="' + n.image + '" loading="lazy" alt="تصویر خبر">';
+            if(n.video) card += '<video src="' + n.video + '" controls preload="metadata" style="width:100%;border-radius:20px;margin-top:14px;"></video>';
+            
+            card += '<div class="card-meta">' +
+                    '<span>📅 ' + (n.date || 'نامشخص') + '</span>' +
+                    '<span>👤 ' + escapeHtml(n.author || 'ناشناس') + '</span>' +
+                    '<span class="view-count">👁 ' + (n.views || 0) + '</span>' +
+                    '</div></div>';
+            
+            return card;
+        }
+
+        async function loadPosts() {
+            var ct = document.getElementById('posts-container');
+            var em = document.getElementById('empty-posts');
+            
+            try {
+                var res = await sb.from('posts').select('*').order('id', { ascending: false });
+                
+                if(!res.data || res.data.length === 0) {
+                    ct.innerHTML = '';
+                    em.style.display = 'block';
+                    window.cachedPostIds.clear();
+                    return;
+                }
+                
+                var ids = new Set(res.data.map(function(p) { return p.id; }));
+                
+                if(ids.size === window.cachedPostIds.size && 
+                   Array.from(ids).every(function(id) { return window.cachedPostIds.has(id); })) {
+                    return;
+                }
+                
+                window.cachedPostIds = ids;
+                em.style.display = 'none';
+                ct.innerHTML = res.data.map(function(p) { return buildPostCard(p); }).join('');
+                
+                res.data.forEach(function(p) { incrementView('posts', p.id); });
+            } catch(e) {
+                console.error('Error loading posts:', e);
+                showToast('خطا در بارگذاری پست‌ها', 'error');
+            }
+        }
+
+        async function loadNews() {
+            var ct = document.getElementById('news-container');
+            var em = document.getElementById('empty-news');
+            
+            try {
+                var res = await sb.from('news').select('*').order('id', { ascending: false });
+                
+                if(!res.data || res.data.length === 0) {
+                    ct.innerHTML = '';
+                    em.style.display = 'block';
+                    window.cachedNewsIds.clear();
+                    return;
+                }
+                
+                var ids = new Set(res.data.map(function(n) { return n.id; }));
+                
+                if(ids.size === window.cachedNewsIds.size && 
+                   Array.from(ids).every(function(id) { return window.cachedNewsIds.has(id); })) {
+                    return;
+                }
+                
+                window.cachedNewsIds = ids;
+                em.style.display = 'none';
+                ct.innerHTML = res.data.map(function(n) { return buildNewsCard(n); }).join('');
+                
+                res.data.forEach(function(n) { incrementView('news', n.id); });
+            } catch(e) {
+                console.error('Error loading news:', e);
+                showToast('خطا در بارگذاری اخبار', 'error');
+            }
+        }
+
+        async function editItem(type, id) {
+            if(!window.currentUser || window.currentUser.role !== 'admin') {
+                showToast('فقط ادمین می‌تواند محتوا را ویرایش کند', 'error');
+                return;
+            }
+            
+            try {
+                var res = await sb.from(type).select('*').eq('id', id).single();
+                
+                if(!res.data) {
+                    showToast('محتوا یافت نشد', 'error');
+                    return;
+                }
+                
+                if(!canEditPost(res.data.author)) {
+                    showToast('شما اجازه ویرایش این محتوا را ندارید', 'error');
+                    return;
+                }
+                
+                openCreateModal(res.data, type);
+            } catch(e) {
+                showToast('خطا در دریافت اطلاعات', 'error');
+                console.error(e);
+            }
+        }
+
+        async function deleteItem(type, id) {
+            if(!window.currentUser || window.currentUser.role !== 'admin') {
+                showToast('فقط ادمین می‌تواند محتوا را حذف کند', 'error');
+                return;
+            }
+            
+            try {
+                var res = await sb.from(type).select('*').eq('id', id).single();
+                
+                if(!res.data) {
+                    showToast('محتوا یافت نشد', 'error');
+                    return;
+                }
+                
+                if(!canEditPost(res.data.author)) {
+                    showToast('شما اجازه حذف این محتوا را ندارید', 'error');
+                    return;
+                }
+                
+                if(!confirm('آیا از حذف این محتوا اطمینان دارید؟')) return;
+                
+                await sb.from(type).delete().eq('id', id);
+                
+                if(type === 'posts') {
+                    window.cachedPostIds.clear();
+                    loadPosts();
+                } else {
+                    window.cachedNewsIds.clear();
+                    loadNews();
+                }
+                
+                showToast('محتوا با موفقیت حذف شد', 'success');
+            } catch(e) {
+                showToast('خطا در حذف محتوا', 'error');
+                console.error(e);
+            }
+        }
+
+        function openCreateModal(ed, et) {
+            window.isEditing = !!ed;
+            window.createMode = et || (window.currentTab === 'news' ? 'news' : 'post');
+            
+            document.getElementById('modal-title').textContent = window.isEditing ? 
+                '✏️ ویرایش' : (window.createMode === 'news' ? '📰 خبر جدید' : '📷 پست جدید');
+            
+            document.getElementById('title-group').style.display = 
+                window.createMode === 'news' ? 'block' : 'none';
+            
+            window.originalImageFile = null;
+            window.compressedImageData = null;
+            window.originalFileSize = 0;
+            
+            document.getElementById('image-quality-group').style.display = 'none';
+            document.getElementById('compression-info').classList.remove('show');
+            document.getElementById('media-preview').innerHTML = '';
+            
+            document.getElementById('post-content').value = ed ? (ed.content || '') : '';
+            document.getElementById('post-title').value = ed ? (ed.title || '') : '';
+            document.getElementById('edit-id').value = ed ? ed.id : '';
+            document.getElementById('edit-type').value = et || '';
+            
+            if(ed && ed.image) {
+                document.getElementById('media-preview').innerHTML = 
+                    '<img src="' + ed.image + '" style="width:100%;border-radius:20px;" alt="پیش‌نمایش">';
+            } else if(ed && ed.video) {
+                document.getElementById('media-preview').innerHTML = 
+                    '<video src="' + ed.video + '" controls style="width:100%;border-radius:20px;"></video>';
+            }
+            
+            document.getElementById('image-upload').value = '';
+            document.getElementById('video-upload').value = '';
+            
+            var saveBtn = document.getElementById('save-post-btn');
+            saveBtn.disabled = false;
+            saveBtn.textContent = '🚀 انتشار';
+            window.isSaving = false;
+            
+            document.getElementById('create-modal').classList.add('show');
+        }
+
+        function closeCreateModal() {
+            document.getElementById('create-modal').classList.remove('show');
+        }
+
+        async function compressImage(file, quality) {
+            return new Promise(function(resolve, reject) {
+                var reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    var img = new Image();
+                    
+                    img.onload = function() {
+                        var canvas = document.createElement('canvas');
+                        var ctx = canvas.getContext('2d');
+                        var w = img.width;
+                        var h = img.height;
+                        
+                        if(w > 1920) {
+                            h = (h / w) * 1920;
+                            w = 1920;
+                        }
+                        if(h > 1920) {
+                            w = (w / h) * 1920;
+                            h = 1920;
+                        }
+                        
+                        canvas.width = w;
+                        canvas.height = h;
+                        ctx.drawImage(img, 0, 0, w, h);
+                        
+                        try {
+                            resolve(canvas.toDataURL('image/jpeg', parseFloat(quality)));
+                        } catch(err) {
+                            reject(err);
+                        }
+                    };
+                    
+                    img.onerror = function() {
+                        reject(new Error('خطا در بارگذاری تصویر'));
+                    };
+                    
+                    img.src = e.target.result;
+                };
+                
+                reader.onerror = function() {
+                    reject(new Error('خطا در خواندن فایل'));
+                };
+                
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function recompressImage() {
+            if(!window.originalImageFile) return;
+            
+            try {
+                window.compressedImageData = await compressImage(
+                    window.originalImageFile,
+                    document.getElementById('image-quality').value
+                );
+                
+                document.getElementById('media-preview').innerHTML = 
+                    '<img src="' + window.compressedImageData + '" style="width:100%;border-radius:20px;" alt="پیش‌نمایش">';
+                
+                updateCompressionInfo();
+            } catch(e) {
+                showToast('خطا در فشرده‌سازی تصویر', 'error');
+                console.error(e);
+            }
+        }
+
+        function updateCompressionInfo() {
+            var div = document.getElementById('compression-info');
+            
+            if(!window.compressedImageData) {
+                div.classList.remove('show');
+                return;
+            }
+            
+            div.classList.add('show');
+            var cs = Math.round(window.compressedImageData.length * 0.75);
+            
+            document.getElementById('original-size').textContent = formatBytes(window.originalFileSize);
+            document.getElementById('compressed-size').textContent = formatBytes(cs);
+            
+            var saved = window.originalFileSize - cs;
+            var percent = window.originalFileSize > 0 ? 
+                Math.round((saved / window.originalFileSize) * 100) : 0;
+            document.getElementById('saved-size').textContent = 
+                formatBytes(saved) + ' (' + percent + '%)';
+        }
+
+        function previewMedia(t) {
+            var input = document.getElementById(t + '-upload');
+            var f = input.files[0];
+            
+            if(!f) return;
+            
+            if(t === 'image') {
+                window.originalImageFile = f;
+                window.originalFileSize = f.size;
+                document.getElementById('image-quality-group').style.display = 'block';
+                recompressImage();
+            } else {
+                // Check video size
+                if(f.size > MAX_VIDEO_SIZE) {
+                    showToast('حجم ویدیو نباید بیشتر از ۵۰ مگابایت باشد', 'error');
+                    input.value = '';
+                    return;
+                }
+                
+                window.originalImageFile = null;
+                window.compressedImageData = null;
+                document.getElementById('image-quality-group').style.display = 'none';
+                document.getElementById('compression-info').classList.remove('show');
+                
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('media-preview').innerHTML = 
+                        '<video src="' + e.target.result + '" controls style="width:100%;border-radius:20px;"></video>';
+                };
+                reader.onerror = function() {
+                    showToast('خطا در خواندن فایل ویدیو', 'error');
+                };
+                reader.readAsDataURL(f);
+            }
+        }
+
+        async function savePost() {
+            if(window.isSaving) {
+                showToast('لطفاً صبر کنید...', 'warning');
+                return;
+            }
+            
+            var co = document.getElementById('post-content').value.trim();
+            var ti = document.getElementById('post-title').value.trim();
+            var eid = document.getElementById('edit-id').value;
+            var etyp = document.getElementById('edit-type').value;
+            
+            if(!window.isEditing && !co && 
+               !document.getElementById('image-upload').files[0] && 
+               !document.getElementById('video-upload').files[0]) {
+                showToast('حداقل یک فیلد را پر کنید', 'error');
+                return;
+            }
+            
+            window.isSaving = true;
+            var btn = document.getElementById('save-post-btn');
+            btn.disabled = true;
+            btn.textContent = '⏳ در حال انتشار...';
+            
+            try {
+                var sk = (window.isEditing && etyp) ? etyp : 
+                         (window.createMode === 'news' ? 'news' : 'posts');
+                var now = new Date();
+                
+                var data = {
+                    id: window.isEditing ? eid : String(Date.now()),
+                    author: window.currentUser.username,
+                    role: window.currentUser.role,
+                    date: now.toLocaleDateString('fa-IR'),
+                    time: now.toLocaleTimeString('fa-IR'),
+                    content: co,
+                    title: window.createMode === 'news' ? ti : '',
+                    date_edited: window.isEditing ? now.toLocaleDateString('fa-IR') : null
+                };
+                
+                if(window.compressedImageData) {
+                    data.image = window.compressedImageData;
+                    data.video = '';
+                } else if(document.getElementById('video-upload').files[0]) {
+                    data.video = await new Promise(function(resolve, reject) {
+                        var r = new FileReader();
+                        r.onload = function(e) { resolve(e.target.result); };
+                        r.onerror = function() { reject(new Error('خطا در خواندن ویدیو')); };
+                        r.readAsDataURL(document.getElementById('video-upload').files[0]);
+                    });
+                }
+                
+                var result;
+                if(window.isEditing) {
+                    result = await sb.from(sk).update(data).eq('id', eid);
+                } else {
+                    result = await sb.from(sk).insert([data]);
+                }
+                
+                if(result.error) {
+                    throw new Error(result.error.message || 'خطای ناشناخته');
+                }
+                
+                if(sk === 'news') window.cachedNewsIds.clear();
+                else window.cachedPostIds.clear();
+                
+                closeCreateModal();
+                
+                if(sk === 'news') await loadNews();
+                else await loadPosts();
+                
+                showToast('محتوا با موفقیت منتشر شد ✅', 'success');
+            } catch(e) {
+                showToast('خطا در انتشار: ' + (e.message || 'خطای ناشناخته'), 'error');
+                console.error('Save error:', e);
+            } finally {
+                window.isSaving = false;
+                btn.disabled = false;
+                btn.textContent = '🚀 انتشار';
+            }
+        }
+
+        // MODS Functions
+        function buildModCard(m) {
+            var isMain = isSuperAdmin(window.currentUser?.username);
+            var card = '<div class="mod-card">';
+            
+            if(isMain) {
+                card += '<div class="card-actions">' +
+                        '<button class="action-btn edit-btn" onclick="editMod(\'' + m.id + '\')">✏️ ویرایش</button>' +
+                        '<button class="action-btn delete-btn" onclick="deleteMod(\'' + m.id + '\')">🗑️ حذف</button>' +
+                        '</div>';
+            }
+            
+            card += '<div class="card-title">🎮 ' + escapeHtml(m.name) + '</div>';
+            
+            if(m.description) {
+                card += '<p class="post-content-text">' + escapeHtml(m.description) + '</p>';
+            }
+            
+            card += '<div class="mod-size">📦 حجم: ' + (m.file_size || 'نامشخص') + '</div>';
+            card += '<div class="card-meta">' +
+                    '<span>📅 ' + (m.date || 'نامشخص') + '</span>' +
+                    '<span>👤 ' + escapeHtml(m.author || 'ناشناس') + '</span>' +
+                    '<span class="view-count">⬇️ ' + (m.downloads || 0) + '</span>' +
+                    '</div>';
+            
+            card += '<button class="download-btn" onclick="downloadMod(\'' + m.id + '\')">⬇️ دانلود</button>';
+            card += '</div>';
+            
+            return card;
+        }
+
+        async function loadMods() {
+            var ct = document.getElementById('mods-container');
+            var em = document.getElementById('empty-mods');
+            
+            try {
+                var res = await sb.from('mods').select('*').order('id', { ascending: false });
+                
+                if(!res.data || res.data.length === 0) {
+                    ct.innerHTML = '';
+                    em.style.display = 'block';
+                    window.cachedModIds.clear();
+                    return;
+                }
+                
+                var ids = new Set(res.data.map(function(m) { return m.id; }));
+                
+                if(ids.size === window.cachedModIds.size && 
+                   Array.from(ids).every(function(id) { return window.cachedModIds.has(id); })) {
+                    return;
+                }
+                
+                window.cachedModIds = ids;
+                em.style.display = 'none';
+                ct.innerHTML = res.data.map(function(m) { return buildModCard(m); }).join('');
+            } catch(e) {
+                console.error('Error loading mods:', e);
+                showToast('خطا در بارگذاری مادها', 'error');
+            }
+        }
+
+        function openModModal(ed) {
+            if(!isSuperAdmin(window.currentUser?.username)) {
+                showToast('فقط ادمین اصلی می‌تواند ماد اضافه کند', 'error');
+                return;
+            }
+            
+            window.isEditingMod = !!ed;
+            document.getElementById('mod-modal-title').textContent = 
+                ed ? '✏️ ویرایش ماد' : '🎮 افزودن ماد جدید';
+            
+            window.modFileBase64 = ed ? (ed.file_data || null) : null;
+            document.getElementById('mod-name').value = ed ? (ed.name || '') : '';
+            document.getElementById('mod-desc').value = ed ? (ed.description || '') : '';
+            document.getElementById('mod-edit-id').value = ed ? (ed.id || '') : '';
+            document.getElementById('mod-file').value = '';
+            
+            var compInfo = document.getElementById('mod-compression-info');
+            compInfo.classList.remove('show');
+            
+            if(window.modFileBase64) {
+                compInfo.classList.add('show');
+                document.getElementById('mod-original-size').textContent = ed.file_size || '-';
+                document.getElementById('mod-base64-size').textContent = ed.file_size || '-';
+            }
+            
+            var saveBtn = document.getElementById('save-mod-btn');
+            saveBtn.disabled = false;
+            saveBtn.textContent = '🚀 انتشار';
+            
+            document.getElementById('mod-modal').classList.add('show');
+        }
+
+        function closeModModal() {
+            document.getElementById('mod-modal').classList.remove('show');
+            window.isEditingMod = false;
+        }
+
+        function previewModFile() {
+            var f = document.getElementById('mod-file').files[0];
+            
+            if(!f) {
+                window.modFileBase64 = null;
+                document.getElementById('mod-compression-info').classList.remove('show');
+                return;
+            }
+            
+            // Check file size
+            if(f.size > MAX_MOD_SIZE) {
+                showToast('حجم فایل نباید بیشتر از ۱۰ مگابایت باشد', 'error');
+                document.getElementById('mod-file').value = '';
+                return;
+            }
+            
+            var reader = new FileReader();
+            
+            reader.onload = function(e) {
+                window.modFileBase64 = e.target.result;
+                var b64Size = Math.round(window.modFileBase64.length * 0.75);
+                
+                document.getElementById('mod-compression-info').classList.add('show');
+                document.getElementById('mod-original-size').textContent = formatBytes(f.size);
+                document.getElementById('mod-base64-size').textContent = formatBytes(b64Size);
+            };
+            
+            reader.onerror = function() {
+                showToast('خطا در خواندن فایل', 'error');
+                window.modFileBase64 = null;
+            };
+            
+            reader.readAsDataURL(f);
+        }
+
+        async function saveMod() {
+            if(window.isSaving) {
+                showToast('لطفاً صبر کنید...', 'warning');
+                return;
+            }
+            
+            var name = document.getElementById('mod-name').value.trim();
+            var desc = document.getElementById('mod-desc').value.trim();
+            var eid = document.getElementById('mod-edit-id').value;
+            
+            if(!name) {
+                showToast('نام ماد الزامی است', 'error');
+                return;
+            }
+            
+            if(!window.isEditingMod && !window.modFileBase64) {
+                showToast('لطفاً فایل ماد را انتخاب کنید', 'error');
+                return;
+            }
+            
+            window.isSaving = true;
+            var btn = document.getElementById('save-mod-btn');
+            btn.disabled = true;
+            btn.textContent = '⏳ در حال انتشار...';
+            
+            try {
+                var now = new Date();
+                var b64Size = window.modFileBase64 ? Math.round(window.modFileBase64.length * 0.75) : 0;
+                
+                var data = {
+                    id: window.isEditingMod ? eid : String(Date.now()),
+                    name: name,
+                    description: desc,
+                    author: window.currentUser.username,
+                    date: now.toLocaleDateString('fa-IR'),
+                    time: now.toLocaleTimeString('fa-IR'),
+                    file_size: formatBytes(b64Size)
+                };
+                
+                if(!window.isEditingMod) data.downloads = 0;
+                if(window.modFileBase64) data.file_data = window.modFileBase64;
+                
+                var result;
+                if(window.isEditingMod && eid) {
+                    result = await sb.from('mods').update(data).eq('id', eid);
+                } else {
+                    result = await sb.from('mods').insert([data]);
+                }
+                
+                if(result.error) {
+                    throw new Error(result.error.message || 'خطای ناشناخته');
+                }
+                
+                window.cachedModIds.clear();
+                closeModModal();
+                await loadMods();
+                showToast('ماد با موفقیت منتشر شد ✅', 'success');
+            } catch(err) {
+                showToast('خطا در انتشار ماد: ' + (err.message || 'خطای ناشناخته'), 'error');
+                console.error('Mod save error:', err);
+            } finally {
+                window.isSaving = false;
+                btn.disabled = false;
+                btn.textContent = '🚀 انتشار';
+            }
+        }
+
+        async function editMod(id) {
+            try {
+                var res = await sb.from('mods').select('*').eq('id', id).single();
+                if(res.data) {
+                    openModModal(res.data);
+                } else {
+                    showToast('ماد یافت نشد', 'error');
+                }
+            } catch(e) {
+                showToast('خطا در دریافت اطلاعات ماد', 'error');
+                console.error(e);
+            }
+        }
+
+        async function deleteMod(id) {
+            if(!isSuperAdmin(window.currentUser?.username)) {
+                showToast('فقط ادمین اصلی می‌تواند ماد را حذف کند', 'error');
+                return;
+            }
+            
+            if(!confirm('آیا از حذف این ماد اطمینان دارید؟')) return;
+            
+            try {
+                await sb.from('mods').delete().eq('id', id);
+                window.cachedModIds.clear();
+                await loadMods();
+                showToast('ماد با موفقیت حذف شد', 'success');
+            } catch(e) {
+                showToast('خطا در حذف ماد', 'error');
+                console.error(e);
+            }
+        }
+
+        async function downloadMod(id) {
+            try {
+                var res = await sb.from('mods').select('*').eq('id', id).single();
+                
+                if(!res.data?.file_data) {
+                    showToast('فایل ماد موجود نیست', 'error');
+                    return;
+                }
+                
+                // Update download count
+                await sb.from('mods').update({
+                    downloads: (res.data.downloads || 0) + 1
+                }).eq('id', id);
+                
+                // Create download link
+                var a = document.createElement('a');
+                a.href = res.data.file_data;
+                a.download = (res.data.name || 'mod') + '.zip';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                
+                window.cachedModIds.clear();
+                await loadMods();
+                
+                showToast('دانلود شروع شد 📥', 'success');
+            } catch(e) {
+                showToast('خطا در دانلود ماد', 'error');
+                console.error(e);
+            }
+        }
+
+        // CHAT Functions
+        function getChatKey(u1, u2) {
+            return [u1, u2].sort().join('___');
+        }
+
+        async function getChatMessages(u1, u2) {
+            try {
+                var res = await sb.from('chat_messages')
+                    .select('*')
+                    .eq('chat_key', getChatKey(u1, u2))
+                    .order('timestamp', { ascending: true });
+                return res.data || [];
+            } catch(e) {
+                console.error('Error getting chat messages:', e);
+                return [];
+            }
+        }
+
+        async function saveChatMessage(u1, u2, msg) {
+            try {
+                await sb.from('chat_messages').insert([{
+                    chat_key: getChatKey(u1, u2),
+                    sender: msg.sender,
+                    text: msg.text,
+                    time: msg.time,
+                    timestamp: msg.timestamp
+                }]);
+            } catch(e) {
+                console.error('Error saving chat message:', e);
+                throw e;
+            }
+        }
+
+        async function sendChatMessage() {
+            var text = document.getElementById('chat-input').value.trim();
+            
+            if(!text) return;
+            if(!window.activeSupportChat && !isSuperAdmin(window.currentUser?.username)) {
+                showToast('خطا در ارسال پیام', 'error');
+                return;
+            }
+            
+            var other = window.activeSupportChat || SUPER_ADMIN;
+            
+            try {
+                await saveChatMessage(window.currentUser.username, other, {
+                    sender: window.currentUser.username,
+                    text: text,
+                    time: new Date().toLocaleTimeString('fa-IR'),
+                    timestamp: Date.now()
+                });
+                
+                document.getElementById('chat-input').value = '';
+                await renderChatMessages();
+            } catch(e) {
+                showToast('خطا در ارسال پیام', 'error');
+            }
+        }
+
+        async function openSupportChat(user) {
+            window.activeSupportChat = user || SUPER_ADMIN;
+            window.cachedChatJson = '';
+            
+            document.getElementById('chat-partner-info').textContent = user ? 
+                'گفتگو با ' + user : 'گفتگو با ادمین اصلی 👑';
+            document.getElementById('support-chat-modal').classList.add('show');
+            
+            await renderChatMessages();
+            
+            setTimeout(function() {
+                var ci = document.getElementById('chat-input');
+                if(ci) ci.focus();
+            }, 200);
+        }
+
+        function closeSupportChat() {
+            document.getElementById('support-chat-modal').classList.remove('show');
+            window.activeSupportChat = null;
+            window.cachedChatJson = '';
+        }
+
+        async function renderChatMessages() {
+            var container = document.getElementById('chat-messages');
+            if(!container || !window.activeSupportChat) return;
+            
+            try {
+                var msgs = await getChatMessages(window.currentUser.username, window.activeSupportChat);
+                var newJson = JSON.stringify(msgs);
+                
+                if(newJson === window.cachedChatJson) return;
+                window.cachedChatJson = newJson;
+                
+                if(msgs.length === 0) {
+                    container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-secondary);">هنوز پیامی ارسال نشده ✍️</div>';
+                    return;
+                }
+                
+                container.innerHTML = msgs.map(function(m) {
+                    var isUser = m.sender === window.currentUser.username;
+                    return '<div class="chat-message ' + (isUser ? 'user' : 'admin') + '">' +
+                           '<strong>' + (isUser ? 'شما' : m.sender) + '</strong><br>' +
+                           escapeHtml(m.text) + 
+                           '<br><small style="opacity:0.7;">' + (m.time || '') + '</small></div>';
+                }).join('');
+                
+                container.scrollTop = container.scrollHeight;
+            } catch(e) {
+                console.error('Error rendering chat:', e);
+            }
+        }
+
+        async function loadSupportRequests() {
+            if(!isSuperAdmin(window.currentUser?.username)) return;
+            
+            try {
+                var res = await sb.from('chat_messages').select('chat_key');
+                var users = new Set();
+                
+                if(res.data) {
+                    res.data.forEach(function(d) {
+                        d.chat_key.split('___').forEach(function(p) {
+                            if(p !== SUPER_ADMIN && p !== window.currentUser.username) {
+                                users.add(p);
+                            }
+                        });
+                    });
+                }
+                
+                document.getElementById('support-count-badge').textContent = users.size + ' کاربر';
+                
+                var listHtml = '';
+                if(users.size === 0) {
+                    listHtml = '<p style="text-align:center;padding:20px;color:var(--text-secondary);">پیامی برای نمایش وجود ندارد</p>';
+                } else {
+                    Array.from(users).forEach(function(u) {
+                        listHtml += '<div style="padding:12px;cursor:pointer;background:var(--surface-1);margin:8px 0;border-radius:12px;transition:0.3s;" ' +
+                                   'onclick="openSupportChat(\'' + u + '\')" ' +
+                                   'onmouseover="this.style.background=\'var(--surface-2)\'" ' +
+                                   'onmouseout="this.style.background=\'var(--surface-1)\'">' +
+                                   '👤 ' + escapeHtml(u) + ' 💬</div>';
+                    });
+                }
+                
+                document.getElementById('support-requests-list').innerHTML = listHtml;
+            } catch(e) {
+                console.error('Error loading support requests:', e);
+            }
+        }
+
+        // SETTINGS Functions
+        async function changeUsername() {
+            var nu = document.getElementById('new-username-input').value.trim();
+            var errorEl = document.getElementById('username-error');
+            
+            errorEl.style.display = 'none';
+            
+            if(!nu) {
+                errorEl.style.display = 'block';
+                showToast('نام کاربری نمی‌تواند خالی باشد', 'error');
+                return;
+            }
+            
+            if(nu === window.currentUser.username) {
+                showToast('نام کاربری جدید با نام فعلی یکسان است', 'warning');
+                return;
+            }
+            
+            if(isSuperAdmin(window.currentUser.username)) {
+                showToast('امکان تغییر نام کاربری ادمین اصلی وجود ندارد', 'warning');
+                return;
+            }
+            
+            if(nu.length < 3) {
+                showToast('نام کاربری باید حداقل ۳ کاراکتر باشد', 'error');
+                return;
+            }
+            
+            if(nu === SUPER_ADMIN) {
+                showToast('این نام کاربری رزرو شده است', 'error');
+                return;
+            }
+            
+            try {
+                // Check if username exists
+                var ex = await sb.from('users').select('*').eq('username', nu).single();
+                if(ex.data) {
+                    showToast('این نام کاربری قبلاً ثبت شده است', 'error');
+                    return;
+                }
+                
+                var old = window.currentUser.username;
+                await sb.from('users').update({ username: nu }).eq('username', old);
+                
+                window.currentUser.username = nu;
+                localStorage.setItem('vibeflow_currentUser', JSON.stringify(window.currentUser));
+                
+                document.getElementById('new-username-input').value = '';
+                updateUI();
+                showToast('نام کاربری با موفقیت تغییر کرد ✅', 'success');
+            } catch(e) {
+                showToast('خطا در تغییر نام کاربری', 'error');
+                console.error(e);
+            }
+        }
+
+        function changePasswordPrompt() {
+            document.getElementById('current-password').value = '';
+            document.getElementById('new-password').value = '';
+            document.getElementById('confirm-password').value = '';
+            document.getElementById('password-modal').classList.add('show');
+        }
+
+        function closePasswordModal() {
+            document.getElementById('password-modal').classList.remove('show');
+        }
+
+        async function changePassword() {
+            var cp = document.getElementById('current-password').value;
+            var np = document.getElementById('new-password').value;
+            var cmp = document.getElementById('confirm-password').value;
+            
+            if(!cp || !np || !cmp) {
+                showToast('لطفاً تمام فیلدها را پر کنید', 'error');
+                return;
+            }
+            
+            if(cp !== window.currentUser.password) {
+                showToast('رمز عبور فعلی اشتباه است', 'error');
+                return;
+            }
+            
+            if(np.length < 3) {
+                showToast('رمز عبور جدید باید حداقل ۳ کاراکتر باشد', 'error');
+                return;
+            }
+            
+            if(np !== cmp) {
+                showToast('رمز عبور جدید با تکرار آن مطابقت ندارد', 'error');
+                return;
+            }
+            
+            if(np === cp) {
+                showToast('رمز عبور جدید نباید با رمز فعلی یکسان باشد', 'warning');
+                return;
+            }
+            
+            try {
+                await sb.from('users').update({ password: np }).eq('username', window.currentUser.username);
+                
+                window.currentUser.password = np;
+                localStorage.setItem('vibeflow_currentUser', JSON.stringify(window.currentUser));
+                
+                closePasswordModal();
+                showToast('رمز عبور با موفقیت تغییر کرد 🔒', 'success');
+            } catch(e) {
+                showToast('خطا در تغییر رمز عبور', 'error');
+                console.error(e);
+            }
+        }
+
+        // POLLING Functions
+        function startLivePolling() {
+            stopLivePolling();
+            window.cachedPostIds.clear();
+            window.cachedNewsIds.clear();
+            window.cachedModIds.clear();
+            window.pollInterval = setInterval(silentPoll, POLL_INTERVAL_MS);
+        }
+
+        function stopLivePolling() {
+            if(window.pollInterval) {
+                clearInterval(window.pollInterval);
+                window.pollInterval = null;
+            }
+        }
+
+        async function silentPoll() {
+            if(!window.currentUser || document.hidden) return;
+            
+            try {
+                if(window.currentTab === 'explore') await loadPosts();
+                else if(window.currentTab === 'news') await loadNews();
+                else if(window.currentTab === 'mods') await loadMods();
+                
+                if(document.getElementById('support-chat-modal').classList.contains('show')) {
+                    await renderChatMessages();
+                }
+            } catch(e) {
+                console.error('Poll error:', e);
+            }
+        }
+
+        // EVENT LISTENERS
+        document.addEventListener('click', function(e) {
+            if(e.target.id === 'create-modal') closeCreateModal();
+            if(e.target.id === 'password-modal') closePasswordModal();
+            if(e.target.id === 'support-chat-modal') closeSupportChat();
+            if(e.target.id === 'mod-modal') closeModModal();
+        });
+
+        document.addEventListener('keydown', function(e) {
+            if(e.key === 'Escape') {
+                closeCreateModal();
+                closePasswordModal();
+                closeSupportChat();
+                closeModModal();
+            }
+        });
+
+        document.addEventListener('visibilitychange', function() {
+            if(document.hidden) {
+                stopLivePolling();
+            } else if(window.currentUser) {
+                startLivePolling();
+                silentPoll(); // Immediate refresh when tab becomes visible
+            }
+        });
+
+        // Prevent accidental navigation
+        window.addEventListener('beforeunload', function(e) {
+            if(window.isSaving) {
+                e.preventDefault();
+                e.returnValue = 'تغییرات ذخیره نشده است. آیا مطمئن هستید؟';
+            }
+        });
+
+        // INITIALIZATION
+        (async function init() {
+            try {
+                // Ensure super admin exists
+                var res = await sb.from('users').select('*').eq('username', SUPER_ADMIN).single();
+                if(!res.data) {
+                    await sb.from('users').insert([{
+                        username: SUPER_ADMIN,
+                        password: 'admin123',
+                        role: 'admin'
+                    }]);
+                    console.log('Super admin created');
+                }
+                
+                // Dark mode initialization
+                if(localStorage.getItem('darkMode') === 'true') {
+                    document.body.classList.add('dark-mode');
+                    document.getElementById('dark-mode-toggle').checked = true;
+                }
+                
+                // Auto-login
+                var saved = JSON.parse(localStorage.getItem('vibeflow_currentUser'));
+                if(saved) {
+                    try {
+                        var userRes = await sb.from('users').select('*')
+                            .eq('username', saved.username)
+                            .eq('password', saved.password)
+                            .single();
+                        
+                        if(userRes.data) {
+                            window.currentUser = userRes.data;
+                            showApp();
+                            startLivePolling();
+                        } else {
+                            localStorage.removeItem('vibeflow_currentUser');
+                            showToast('اطلاعات ورود منقضی شده، لطفاً دوباره وارد شوید', 'warning');
+                        }
+                    } catch(e) {
+                        console.error('Auto-login error:', e);
+                        localStorage.removeItem('vibeflow_currentUser');
+                    }
+                }
+            } catch(e) {
+                console.error('Initialization error:', e);
+                showToast('خطا در راه‌اندازی برنامه. لطفاً صفحه را refresh کنید', 'error');
+            }
+        })();
+    </script>
+</body>
+</html>
