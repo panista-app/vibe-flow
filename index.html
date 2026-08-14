@@ -1,0 +1,3008 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Nexo | نکسو | نسل جدید محتوا</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+        :root {
+            --bg: #030712;
+            --card: rgba(15, 23, 42, 0.75);
+            --accent: #8b5cf6;
+            --accent2: #06b6d4;
+            --pink: #ec4899;
+            --text: #f1f5f9;
+            --text2: #94a3b8;
+            --glass: rgba(255, 255, 255, 0.04);
+            --border: rgba(255, 255, 255, 0.08);
+            --danger: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            font-family: 'Vazirmatn', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            height: 100%;
+            width: 100%;
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            background: linear-gradient(135deg, #030712 0%, #0f172a 50%, #030712 100%);
+        }
+
+        #auth-container {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        #app-container {
+            width: 100%;
+            max-width: 540px;
+            min-height: 100vh;
+            position: relative;
+            display: none;
+            padding-bottom: 100px;
+        }
+
+        .auth-card {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 30px 24px;
+            width: 100%;
+            max-width: 400px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .auth-card h2 {
+            text-align: center;
+            font-size: 28px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 8px;
+        }
+
+        .auth-subtitle {
+            text-align: center;
+            color: var(--text2);
+            margin-bottom: 24px;
+            font-size: 13px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            color: var(--text2);
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            font-size: 14px;
+            background: var(--glass);
+            color: var(--text);
+            font-family: 'Vazirmatn', sans-serif;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 8px;
+            font-family: 'Vazirmatn', sans-serif;
+            transition: opacity 0.3s;
+        }
+        .btn:active { opacity: 0.8; }
+        .btn-primary {
+            background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+            color: white;
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+        .btn-success {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+        .btn-sm {
+            padding: 8px 14px;
+            font-size: 12px;
+            border-radius: 10px;
+            width: auto;
+        }
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .toggle-text {
+            text-align: center;
+            margin-top: 20px;
+            color: var(--text2);
+            font-size: 13px;
+        }
+        .toggle-text a {
+            color: var(--accent);
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        .header {
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(20px);
+            padding: 12px 16px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+        .header-title {
+            font-size: 18px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 16px 14px;
+            animation: fadeIn 0.3s ease;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 20px);
+            max-width: 520px;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            display: flex;
+            justify-content: space-evenly;
+            padding: 6px 4px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            color: var(--text2);
+            padding: 8px 10px;
+            border-radius: 14px;
+            flex: 1;
+            transition: all 0.3s;
+            font-size: 10px;
+            position: relative;
+        }
+        .nav-item.active {
+            color: white;
+            background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+        }
+        .nav-item span {
+            font-size: 18px;
+            margin-bottom: 2px;
+        }
+        .nav-item p {
+            font-size: 9px;
+            margin: 0;
+            font-weight: 700;
+        }
+        .nav-badge {
+            position: absolute;
+            top: 2px;
+            right: 6px;
+            width: 18px;
+            height: 18px;
+            background: #ef4444;
+            color: white;
+            border-radius: 50%;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            display: none;
+        }
+
+        .post-card, .news-card, .mod-card, .room-card, .settings-section {
+            background: var(--card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 18px;
+            margin-bottom: 14px;
+            transition: border-color 0.3s;
+        }
+        
+        .card-actions {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        .action-btn {
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 700;
+            font-family: 'Vazirmatn', sans-serif;
+        }
+        .edit-btn {
+            background: rgba(139, 92, 246, 0.2);
+            color: var(--accent);
+        }
+        .delete-btn {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        .post-card img, .post-card video {
+            width: 100%;
+            border-radius: 12px;
+            margin-top: 10px;
+            max-height: 300px;
+            object-fit: cover;
+        }
+        .post-content-text {
+            line-height: 1.8;
+            margin: 10px 0;
+            font-size: 14px;
+            word-break: break-word;
+        }
+        .card-title {
+            font-size: 18px;
+            font-weight: 900;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .card-meta {
+            color: var(--text2);
+            font-size: 11px;
+            margin-top: 12px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding-top: 10px;
+            border-top: 1px solid var(--border);
+        }
+        .view-count {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            font-size: 10px;
+        }
+        .mod-size {
+            font-size: 12px;
+            color: var(--accent);
+            margin: 6px 0;
+            font-weight: 600;
+        }
+        .download-btn {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            font-family: 'Vazirmatn', sans-serif;
+            font-size: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 8px;
+        }
+
+        .settings-section h3 {
+            font-size: 15px;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .page-overlay {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg);
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        .page-overlay.show {
+            display: flex;
+        }
+        .page-content {
+            padding: 16px 14px;
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            animation: fadeIn 0.3s ease;
+        }
+        .page-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .page-header h2 {
+            font-size: 18px;
+            font-weight: 900;
+            background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 13px;
+            z-index: 9999;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            max-width: 90%;
+            text-align: center;
+            animation: fadeIn 0.3s ease;
+        }
+        .toast-success { background: rgba(16, 185, 129, 0.95); color: white; }
+        .toast-error { background: rgba(239, 68, 68, 0.95); color: white; }
+        .toast-info { background: rgba(59, 130, 246, 0.95); color: white; }
+        .toast-warning { background: rgba(245, 158, 11, 0.95); color: white; }
+
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 55vh;
+        }
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 14px;
+            margin-bottom: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .chat-message {
+            max-width: 80%;
+            padding: 8px 12px;
+            border-radius: 12px;
+            font-size: 13px;
+            line-height: 1.6;
+            position: relative;
+        }
+        .chat-message.user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: white;
+        }
+        .chat-message.other {
+            align-self: flex-start;
+            background: rgba(30, 30, 70, 0.9);
+        }
+        .chat-message.deleted {
+            opacity: 0.5;
+            font-style: italic;
+            align-self: center;
+        }
+        .admin-badge-chat {
+            font-size: 10px;
+            margin-right: 4px;
+        }
+        .pv-link, .reply-btn {
+            font-size: 10px;
+            color: var(--accent2);
+            cursor: pointer;
+            margin-right: 8px;
+        }
+
+        .chat-tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 14px;
+        }
+        .chat-tab-btn {
+            flex: 1;
+            padding: 8px;
+            text-align: center;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 12px;
+            background: var(--glass);
+            color: var(--text2);
+            transition: all 0.3s;
+        }
+        .chat-tab-btn.active {
+            background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+            color: white;
+        }
+
+        .chat-input-area {
+            display: flex;
+            gap: 6px;
+        }
+        .chat-input-area input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--glass);
+            color: var(--text);
+            font-family: 'Vazirmatn', sans-serif;
+        }
+        .chat-input-area button {
+            padding: 10px 16px;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .reply-preview {
+            background: rgba(139, 92, 246, 0.2);
+            padding: 6px 10px;
+            border-radius: 10px;
+            margin-bottom: 6px;
+            font-size: 11px;
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .reply-preview button {
+            background: none;
+            border: none;
+            color: var(--danger);
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .room-info h3 {
+            font-size: 14px;
+            margin-bottom: 4px;
+            padding-right: 30px;
+        }
+        .room-info p {
+            font-size: 11px;
+            color: var(--text2);
+        }
+        .verified-badge { color: #06b6d4; font-size: 13px; }
+        .group-badge { color: #10b981; font-size: 11px; font-weight: 700; }
+
+        .three-dots {
+            cursor: pointer;
+            font-size: 18px;
+            padding: 6px;
+            color: var(--text2);
+        }
+
+        .context-menu {
+            position: fixed;
+            background: rgba(20, 20, 50, 0.98);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 6px;
+            z-index: 3000;
+            min-width: 150px;
+            display: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+        }
+        .context-menu.show { display: block; }
+        .context-menu div {
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.2s;
+        }
+        .context-menu div:active { background: rgba(255, 255, 255, 0.1); }
+        .context-menu .danger { color: var(--danger); }
+
+        .pin-bar {
+            background: rgba(139, 92, 246, 0.2);
+            padding: 8px 12px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            font-size: 11px;
+            display: none;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .pin-bar button {
+            background: none;
+            border: none;
+            color: var(--danger);
+            cursor: pointer;
+        }
+
+        .admin-badge {
+            background: linear-gradient(135deg, #f59e0b, #fbbf24);
+            color: #000;
+            padding: 4px 10px;
+            border-radius: 14px;
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        .create-btn {
+            position: fixed;
+            right: 14px;
+            width: 46px;
+            height: 46px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+            color: white;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.4);
+            z-index: 999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #create-post-btn { bottom: 90px; }
+        #create-mod-btn { bottom: 150px; }
+
+        .admin-room-delete {
+            position: absolute;
+            right: 8px;
+            top: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            color: var(--text2);
+            padding: 4px;
+            border-radius: 6px;
+            z-index: 10;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px;
+            background: var(--glass);
+            border-radius: 10px;
+            margin-bottom: 6px;
+        }
+        .checkbox-item input[type="checkbox"] { width: auto; }
+        .checkbox-item label {
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .url-input-group {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+        .url-input-group input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: var(--glass);
+            color: var(--text);
+            font-family: 'Vazirmatn', sans-serif;
+            font-size: 12px;
+        }
+        .url-preview {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: 10px;
+            margin-top: 8px;
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            #app-container {
+                max-width: 720px;
+            }
+            .chat-message { max-width: 65%; }
+            .chat-container { height: 60vh; }
+        }
+    </style>
+</head>
+<body>
+    <div id="auth-container">
+        <div class="auth-card" id="login-form">
+            <h2>⚡ Nexo</h2>
+            <p class="auth-subtitle">پلتفرم نسل جدید محتوای دیجیتال</p>
+            <div class="form-group"><label>👤 نام کاربری</label><input type="text" id="login-username" placeholder="نام کاربری را وارد کنید"></div>
+            <div class="form-group"><label>🔒 رمز عبور</label><input type="password" id="login-password" placeholder="رمز عبور را وارد کنید"></div>
+            <button class="btn btn-primary" id="login-btn" onclick="handleLogin()">✨ ورود به نکسو</button>
+            <p class="toggle-text">تازه وارد هستید؟ <a onclick="showRegister()">ثبت‌نام کنید</a></p>
+        </div>
+        <div class="auth-card" id="register-form" style="display:none;">
+            <h2>🌟 عضویت</h2>
+            <p class="auth-subtitle">به خانواده نکسو بپیوندید</p>
+            <div class="form-group"><label>👤 نام کاربری</label><input type="text" id="register-username" placeholder="نام کاربری انتخاب کنید"></div>
+            <div class="form-group"><label>🔒 رمز عبور</label><input type="password" id="register-password" placeholder="حداقل ۳ کاراکتر"></div>
+            <button class="btn btn-primary" id="register-btn" onclick="handleRegister()">🎉 شروع ماجراجویی</button>
+            <p class="toggle-text">قبلاً عضو شده‌اید؟ <a onclick="showLogin()">وارد شوید</a></p>
+        </div>
+    </div>
+
+    <div id="app-container">
+        <div class="header">
+            <span class="header-title" id="header-title">نکسو</span>
+            <div style="display:flex;gap:8px;align-items:center;">
+                <span class="admin-badge" id="admin-badge" style="display:none;">👑 ادمین</span>
+                <button class="btn btn-sm" style="background:rgba(239,68,68,0.1);color:var(--danger);" onclick="handleLogout()">🚪</button>
+            </div>
+        </div>
+
+        <div id="explore-tab" class="tab-content active"><div id="posts-container"></div></div>
+        <div id="news-tab" class="tab-content"><div id="news-container"></div></div>
+        <div id="mods-tab" class="tab-content"><div id="mods-container"></div></div>
+
+        <div id="chat-tab" class="tab-content">
+            <div class="chat-tabs">
+                <div class="chat-tab-btn active" onclick="switchChatTab('channels')">📢 کانال‌ها</div>
+                <div class="chat-tab-btn" onclick="switchChatTab('private')">💬 چت‌های خصوصی</div>
+            </div>
+            <div id="chat-channels-content">
+                <div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;" id="admin-chat-actions">
+                    <button class="btn btn-sm btn-success" onclick="openCreateRoomPage('channel')">➕ کانال جدید</button>
+                    <button class="btn btn-sm" style="background:rgba(16,185,129,0.2);color:#10b981;" onclick="openCreateRoomPage('group')">👥 گروه جدید</button>
+                </div>
+                <div id="rooms-list"></div>
+            </div>
+            <div id="chat-private-content" style="display:none;">
+                <div style="margin-bottom:10px;">
+                    <input type="text" id="chat-user-search" placeholder="🔍 جستجوی کاربر..." style="width:100%;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--glass);color:var(--text);font-family:'Vazirmatn';font-size:12px;" oninput="searchChatUsers()">
+                </div>
+                <div id="chat-user-search-results" style="margin-bottom:10px;"></div>
+                <h3 style="font-size:13px;color:var(--text2);margin-bottom:8px;">💬 چت‌های اخیر</h3>
+                <div id="private-chats-list"></div>
+            </div>
+        </div>
+
+        <div id="room-view" class="tab-content">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                <button class="btn btn-sm btn-outline" onclick="goBackToChatList()">⬅️ برگشت</button>
+                <h3 id="room-view-title" style="font-size:15px;cursor:pointer;" onclick="openRoomSettingsPage()"></h3>
+                <span class="three-dots" id="room-three-dots" style="display:none;" onclick="toggleRoomContextMenu(event)">⋯</span>
+            </div>
+            <div class="context-menu" id="room-context-menu">
+                <div onclick="openRoomSettingsPage()">⚙️ تنظیمات</div>
+                <div onclick="leaveRoom()" class="danger">🚪 ترک</div>
+                <div onclick="reportRoom()" class="danger">🚩 گزارش</div>
+            </div>
+            <div class="pin-bar" id="pinned-message-bar">
+                <span id="pinned-message-text"></span>
+                <button onclick="unpinMessage()">✕</button>
+            </div>
+            <div class="chat-container">
+                <div class="chat-messages" id="room-chat-messages"></div>
+                <div class="reply-preview" id="reply-preview">
+                    <span id="reply-preview-text"></span>
+                    <button onclick="cancelReply()">✕</button>
+                </div>
+                <div class="chat-input-area" id="room-chat-input-area">
+                    <input type="text" id="room-chat-input" placeholder="پیام..." onkeydown="if(event.key==='Enter')sendRoomMessage()">
+                    <button id="room-send-btn" onclick="sendRoomMessage()">📨</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="private-chat-view" class="tab-content">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                <button class="btn btn-sm btn-outline" onclick="goBackToChatList()">⬅️ برگشت</button>
+                <h3 id="private-chat-title" style="font-size:15px;"></h3>
+                <span class="three-dots" onclick="togglePrivateContextMenu(event)">⋯</span>
+            </div>
+            <div class="context-menu" id="private-context-menu">
+                <div onclick="blockUser()" class="danger">🚫 مسدود کردن</div>
+                <div onclick="reportUser()" class="danger">🚩 گزارش</div>
+            </div>
+            <div class="chat-container">
+                <div class="chat-messages" id="private-chat-messages"></div>
+                <div class="reply-preview" id="private-reply-preview">
+                    <span id="private-reply-preview-text"></span>
+                    <button onclick="cancelPrivateReply()">✕</button>
+                </div>
+                <div class="chat-input-area">
+                    <input type="text" id="private-chat-input" placeholder="پیام..." onkeydown="if(event.key==='Enter')sendPrivateMessage()">
+                    <button id="private-send-btn" onclick="sendPrivateMessage()">📨</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="room-settings-page" class="tab-content">
+            <button class="btn btn-sm btn-outline" onclick="goBackToRoom()" style="margin-bottom:14px;">⬅️ برگشت</button>
+            <h3 style="margin-bottom:14px;">⚙️ تنظیمات کانال</h3>
+            <div class="form-group"><label>📝 اسم جدید</label><input type="text" id="room-settings-name"></div>
+            <div class="form-group"><label>📝 بیوگرافی جدید</label><textarea id="room-settings-bio" rows="3"></textarea></div>
+            <button class="btn btn-success" onclick="saveRoomSettings()">💾 ذخیره</button>
+            <div class="settings-section" style="margin-top:16px;">
+                <h3>👤 اضافه کردن ادمین</h3>
+                <div class="form-group"><label>نام کاربری</label><input type="text" id="new-admin-username" placeholder="اسم کاربر..."></div>
+                <button class="btn btn-primary" onclick="addAdminToRoom()">➕ اضافه کردن ادمین</button>
+            </div>
+            <div class="settings-section" style="margin-top:16px;">
+                <h3>👥 اضافه کردن اعضا</h3>
+                <button class="btn btn-outline" onclick="openAddMembersPage()">➕ مدیریت اعضا</button>
+            </div>
+        </div>
+
+        <div id="create-room-page" class="tab-content">
+            <button class="btn btn-sm btn-outline" onclick="goBackToChatList()" style="margin-bottom:14px;">⬅️ برگشت</button>
+            <h3 id="create-room-title" style="margin-bottom:14px;">➕ ساخت کانال جدید</h3>
+            <div class="form-group"><label>📝 اسم</label><input type="text" id="create-room-name"></div>
+            <div class="form-group"><label>📝 بیوگرافی</label><textarea id="create-room-bio" rows="3"></textarea></div>
+            <div class="checkbox-item" style="margin-bottom:12px;">
+                <input type="checkbox" id="create-room-all-members"><label>✅ همه کاربران عضو شوند</label>
+            </div>
+            <div class="checkbox-item" style="margin-bottom:12px;display:none;" id="create-room-members-can-send-wrap">
+                <input type="checkbox" id="create-room-members-can-send"><label>💬 اعضا هم بتوانند پیام بدهند</label>
+            </div>
+            <button class="btn btn-success" onclick="createRoom()">🚀 ساخت</button>
+            <div id="create-room-select-members" style="display:none;margin-top:14px;">
+                <h4 style="margin-bottom:8px;">👥 انتخاب اعضا</h4>
+                <div style="margin-bottom:8px;"><div class="checkbox-item"><input type="checkbox" id="select-all-members" onchange="toggleAllMembers()"><label>انتخاب همه</label></div></div>
+                <div id="members-checkbox-list" style="max-height:250px;overflow-y:auto;"></div>
+            </div>
+        </div>
+
+        <div id="add-members-page" class="tab-content">
+            <button class="btn btn-sm btn-outline" onclick="goBackToRoomSettings()" style="margin-bottom:14px;">⬅️ برگشت</button>
+            <h3 style="margin-bottom:14px;">👥 انتخاب اعضا</h3>
+            <div style="margin-bottom:8px;"><div class="checkbox-item"><input type="checkbox" id="select-all-add-members" onchange="toggleAllAddMembers()"><label>انتخاب همه</label></div></div>
+            <div id="add-members-list" style="max-height:350px;overflow-y:auto;margin-bottom:14px;"></div>
+            <button class="btn btn-success" onclick="addSelectedMembers()">➕ اضافه کردن</button>
+        </div>
+
+        <div id="settings-tab" class="tab-content">
+            <div class="settings-section"><h3>⚙️ تنظیمات</h3></div>
+            <div class="settings-section">
+                <h3>👤 اطلاعات کاربری</h3>
+                <p>👤 <strong id="settings-username"></strong></p>
+                <p>🏷️ <span id="settings-role"></span></p>
+                <div style="display:flex;gap:6px;margin-top:8px;">
+                    <input type="text" id="new-username-input" placeholder="نام کاربری جدید" style="flex:1;padding:10px;border-radius:10px;border:1px solid var(--border);background:var(--glass);color:var(--text);font-family:'Vazirmatn';font-size:12px;">
+                    <button class="btn btn-sm btn-primary" onclick="changeUsername()">💾</button>
+                </div>
+                <button class="btn btn-sm btn-outline" style="margin-top:8px;" onclick="openChangePasswordPage()">🔒 تغییر رمز</button>
+            </div>
+            <div class="settings-section" id="support-section">
+                <h3>💬 پشتیبانی</h3>
+                <button class="btn btn-primary" onclick="openSupportChatPage()">💬 گفتگو با پشتیبانی</button>
+            </div>
+            <div class="settings-section" id="admin-support-section" style="display:none;">
+                <h3>📨 پیام‌های پشتیبانی</h3>
+                <div id="support-requests-list"></div>
+            </div>
+            <div class="settings-section" id="admin-users-section" style="display:none;">
+                <h3>👥 مدیریت کاربران</h3>
+                <input type="text" id="users-search-input" placeholder="🔍 جستجوی کاربر..." style="width:100%;padding:10px;margin-bottom:10px;border-radius:10px;border:1px solid var(--border);background:var(--glass);color:var(--text);font-family:'Vazirmatn';font-size:12px;" oninput="filterUsersList()">
+                <div id="users-list-container"></div>
+            </div>
+            <div class="settings-section" id="admin-reports-section" style="display:none;">
+                <h3>🚩 گزارش‌ها <span id="reports-count-badge" style="background:#ef4444;color:#fff;padding:2px 6px;border-radius:8px;font-size:10px;display:none;">۰</span></h3>
+                <div id="reports-list"></div>
+            </div>
+            <button class="btn btn-danger" onclick="handleLogout()">🚪 خروج از حساب</button>
+        </div>
+
+        <div class="bottom-nav">
+            <div class="nav-item active" onclick="switchTab('explore')"><span>🧭</span><p>اکسپلور</p></div>
+            <div class="nav-item" onclick="switchTab('news')"><span>📰</span><p>خبرها</p></div>
+            <div class="nav-item" onclick="switchTab('mods')"><span>🎮</span><p>مادها</p></div>
+            <div class="nav-item" onclick="switchTab('chat')"><span>💬</span><p>چت</p></div>
+            <div class="nav-item" onclick="switchTab('settings')"><span>⚙️</span><p>تنظیمات</p><span class="nav-badge" id="reports-nav-badge">!</span></div>
+        </div>
+
+        <button class="create-btn" id="create-post-btn" style="display:none;" onclick="openCreatePostPage()">✚</button>
+        <button class="create-btn" id="create-mod-btn" style="display:none;" onclick="openUploadModPage()">🎮</button>
+    </div>
+
+    <!-- Create Post/News Page -->
+    <div class="page-overlay" id="create-post-page" onclick="if(event.target===this)closeCreatePostPage()">
+        <div class="page-content">
+            <div class="page-header">
+                <button class="btn btn-sm btn-outline" onclick="closeCreatePostPage()">⬅️ برگشت</button>
+                <h2 id="create-post-page-title">📷 ایجاد پست</h2>
+            </div>
+            <div class="form-group" id="post-title-group" style="display:none;">
+                <label>📌 عنوان خبر</label>
+                <input type="text" id="post-title-input" placeholder="عنوان خبر را بنویسید...">
+            </div>
+            <div class="form-group">
+                <label>✍️ متن</label>
+                <textarea id="post-content-input" placeholder="محتوای خود را اینجا بنویسید..." rows="5"></textarea>
+            </div>
+            <div class="form-group">
+                <label>🖼️ لینک تصویر (URL)</label>
+                <input type="url" id="post-image-url" placeholder="https://example.com/image.jpg" oninput="previewUrlImage()">
+                <img id="post-image-preview" class="url-preview" alt="پیش‌نمایش تصویر">
+            </div>
+            <div class="form-group">
+                <label>🎥 لینک ویدیو (URL)</label>
+                <input type="url" id="post-video-url" placeholder="https://example.com/video.mp4">
+            </div>
+            <input type="hidden" id="post-edit-id">
+            <input type="hidden" id="post-edit-type">
+            <button class="btn btn-success" id="save-post-page-btn" onclick="savePostFromPage()">🚀 انتشار</button>
+        </div>
+    </div>
+
+    <!-- Change Password Page -->
+    <div class="page-overlay" id="change-password-page" onclick="if(event.target===this)closeChangePasswordPage()">
+        <div class="page-content">
+            <div class="page-header">
+                <button class="btn btn-sm btn-outline" onclick="closeChangePasswordPage()">⬅️ برگشت</button>
+                <h2>🔒 تغییر رمز</h2>
+            </div>
+            <div class="form-group"><label>رمز فعلی</label><input type="password" id="cp-current-password"></div>
+            <div class="form-group"><label>رمز جدید</label><input type="password" id="cp-new-password"></div>
+            <div class="form-group"><label>تکرار رمز جدید</label><input type="password" id="cp-confirm-password"></div>
+            <button class="btn btn-success" onclick="changePasswordFromPage()">💾 ذخیره</button>
+        </div>
+    </div>
+
+    <!-- Support Chat Page -->
+    <div class="page-overlay" id="support-chat-page" onclick="if(event.target===this)closeSupportChatPage()">
+        <div class="page-content">
+            <div class="page-header">
+                <button class="btn btn-sm btn-outline" onclick="closeSupportChatPage()">⬅️ برگشت</button>
+                <h2>💬 پشتیبانی</h2>
+            </div>
+            <p id="support-chat-partner-info" style="color:var(--text2);margin-bottom:10px;"></p>
+            <div class="chat-container">
+                <div class="chat-messages" id="support-chat-messages"></div>
+                <div class="chat-input-area">
+                    <input type="text" id="support-chat-input" placeholder="پیام..." onkeydown="if(event.key==='Enter')sendSupportChatMessage()">
+                    <button onclick="sendSupportChatMessage()">📨</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upload Mod Page -->
+    <div class="page-overlay" id="upload-mod-page" onclick="if(event.target===this)closeUploadModPage()">
+        <div class="page-content">
+            <div class="page-header">
+                <button class="btn btn-sm btn-outline" onclick="closeUploadModPage()">⬅️ برگشت</button>
+                <h2 id="upload-mod-page-title">🎮 افزودن ماد</h2>
+            </div>
+            <div class="form-group">
+                <label>🎮 نام ماد</label>
+                <input type="text" id="mod-name-input" placeholder="اسم ماد رو اینجا بنویس...">
+            </div>
+            <div class="form-group">
+                <label>📝 توضیحات</label>
+                <textarea id="mod-desc-input" placeholder="یه توضیح کوتاه درباره ماد..." rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <label>🔗 لینک دانلود (URL)</label>
+                <input type="url" id="mod-download-url" placeholder="https://example.com/mod.zip">
+            </div>
+            <input type="hidden" id="mod-edit-id-page">
+            <button class="btn btn-success" id="save-mod-page-btn" onclick="saveModFromPage()">🚀 انتشار</button>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://bifmxjfkzqrmonlgfaze.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_o3f-sbfwtVWHoFqQgHrbBw_nB0cm_Vc';
+        const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const POLL_INTERVAL_MS = 60000; // هر ۶۰ ثانیه چک کن
+        const CACHE_VERSION = 'v1.0';
+
+        window.currentUser = null;
+        window.currentTab = 'explore';
+        window.currentRoom = null;
+        window.currentPrivateChat = null;
+        window.replyToMessage = null;
+        window.privateReplyToMessage = null;
+        window.mainAdminUsername = 'amir hossein';
+        window._cachedMainAdmin = null;
+        window.isSaving = false;
+        window.createRoomType = 'channel';
+        window.chatSubTab = 'channels';
+        window.pollInterval = null;
+        window.senderRolesCache = {};
+        window.activeSupportChat = null;
+        window.isEditingMod = false;
+        window.allUsersCache = [];
+        window.isUserChatting = false;
+        window.lastMessageTimestamp = {};
+        window.roomsCache = null;
+        window.privateChatsCache = null;
+        window.postsCache = null;
+        window.newsCache = null;
+        window.modsCache = null;
+        window._roomCanSend = null;
+        window._isEditingPost = false;
+        window._createMode = 'post';
+
+        // توابع کش
+        function getCachedData(key) {
+            try {
+                const data = localStorage.getItem(key);
+                if (!data) return null;
+                const parsed = JSON.parse(data);
+                if (parsed && parsed.version === CACHE_VERSION) {
+                    return parsed.data;
+                }
+                return null;
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function setCachedData(key, data) {
+            try {
+                localStorage.setItem(key, JSON.stringify({
+                    version: CACHE_VERSION,
+                    data: data,
+                    timestamp: Date.now()
+                }));
+            } catch (e) {
+                console.log('Cache save error:', e);
+            }
+        }
+
+        function clearCache() {
+            const keys = ['nexo_posts', 'nexo_news', 'nexo_mods', 'nexo_rooms', 'nexo_private_chats', 'nexo_messages_'];
+            keys.forEach(k => {
+                if (k.endsWith('_')) {
+                    for (let i = localStorage.length - 1; i >= 0; i--) {
+                        const key = localStorage.key(i);
+                        if (key && key.startsWith(k)) {
+                            localStorage.removeItem(key);
+                        }
+                    }
+                } else {
+                    localStorage.removeItem(k);
+                }
+            });
+        }
+
+        function showToast(m, t) {
+            const existing = document.querySelectorAll('.toast');
+            existing.forEach(el => el.remove());
+            const n = document.createElement('div');
+            n.className = 'toast toast-' + (t || 'info');
+            n.textContent = m;
+            document.body.appendChild(n);
+            setTimeout(() => { if (n.parentNode) n.remove(); }, 2500);
+        }
+
+        function isSuperAdmin() { return window.currentUser && window.currentUser.id === 1; }
+
+        function escapeHtml(t) {
+            if (!t) return '';
+            const d = document.createElement('div');
+            d.textContent = t;
+            return d.innerHTML;
+        }
+
+        function getPrivateChatKey(u1, u2) { return [u1, u2].sort().join('___'); }
+
+        function showPage(pageId) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        function positionContextMenu(menu, event) {
+            const menuWidth = 150;
+            const menuHeight = 120;
+            let x = event.clientX;
+            let y = event.clientY;
+            const windowW = window.innerWidth;
+            const windowH = window.innerHeight;
+            if (x + menuWidth > windowW - 10) x = windowW - menuWidth - 10;
+            if (x < 10) x = 10;
+            if (y + menuHeight > windowH - 10) y = y - menuHeight - 10;
+            if (y < 10) y = 10;
+            menu.style.left = x + 'px';
+            menu.style.top = y + 'px';
+        }
+
+        function disableBtn(id, text) {
+            const b = document.getElementById(id);
+            if (b) { b.disabled = true; b.textContent = text || '⏳'; }
+        }
+
+        function enableBtn(id, text) {
+            const b = document.getElementById(id);
+            if (b) { b.disabled = false; b.textContent = text || '📨'; }
+        }
+
+        function showRegister() {
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('register-form').style.display = 'block';
+        }
+
+        function showLogin() {
+            document.getElementById('register-form').style.display = 'none';
+            document.getElementById('login-form').style.display = 'block';
+        }
+
+        async function handleLogin() {
+            const u = document.getElementById('login-username').value.trim();
+            const p = document.getElementById('login-password').value.trim();
+            if (!u || !p) { showToast('لطفاً تمام فیلدها را پر کنید', 'error'); return; }
+            disableBtn('login-btn', '⏳ در حال ورود...');
+            try {
+                const res = await sb.from('users').select('*').eq('username', u).eq('password', p).single();
+                if (res.data && !res.error) {
+                    window.currentUser = res.data;
+                    localStorage.setItem('vibeflow_currentUser', JSON.stringify(res.data));
+                    if (res.data.id === 1) {
+                        window._cachedMainAdmin = res.data.username;
+                        window.mainAdminUsername = res.data.username;
+                    }
+                    showApp();
+                    startLivePolling();
+                    showToast('خوش آمدید! 🎉', 'success');
+                } else {
+                    showToast('نام کاربری یا رمز عبور اشتباه است', 'error');
+                }
+            } catch (e) {
+                showToast('خطا در برقراری ارتباط با سرور', 'error');
+            } finally {
+                enableBtn('login-btn', '✨ ورود به نکسو');
+            }
+        }
+
+        async function handleRegister() {
+            const u = document.getElementById('register-username').value.trim();
+            const p = document.getElementById('register-password').value.trim();
+            if (!u || !p) { showToast('لطفاً تمام فیلدها را پر کنید', 'error'); return; }
+            if (p.length < 3) { showToast('رمز عبور باید حداقل ۳ کاراکتر باشد', 'error'); return; }
+            if (u.toLowerCase() === 'admin' || u === window.mainAdminUsername) {
+                showToast('این نام کاربری رزرو شده است', 'error');
+                return;
+            }
+            disableBtn('register-btn', '⏳ در حال ثبت‌نام...');
+            try {
+                const ex = await sb.from('users').select('*').eq('username', u).single();
+                if (ex.data) {
+                    showToast('این نام کاربری قبلاً ثبت شده است', 'error');
+                    enableBtn('register-btn', '🎉 شروع ماجراجویی');
+                    return;
+                }
+                const res = await sb.from('users').insert([{ username: u, password: p, role: 'user' }]).select().single();
+                if (res.data && !res.error) {
+                    window.currentUser = res.data;
+                    localStorage.setItem('vibeflow_currentUser', JSON.stringify(res.data));
+                    showApp();
+                    startLivePolling();
+                    showToast('ثبت‌نام با موفقیت انجام شد! 🎉', 'success');
+                } else {
+                    showToast('خطا در ثبت‌نام', 'error');
+                }
+            } catch (e) {
+                showToast('خطا در برقراری ارتباط با سرور', 'error');
+            } finally {
+                enableBtn('register-btn', '🎉 شروع ماجراجویی');
+            }
+        }
+
+        function handleLogout() {
+            if (!confirm('آیا مطمئن هستید؟')) return;
+            stopLivePolling();
+            localStorage.removeItem('vibeflow_currentUser');
+            clearCache();
+            window.currentUser = null;
+            window._cachedMainAdmin = null;
+            window.currentRoom = null;
+            window.currentPrivateChat = null;
+            window.senderRolesCache = {};
+            window.allUsersCache = [];
+            window.lastMessageTimestamp = {};
+            window.roomsCache = null;
+            window.privateChatsCache = null;
+            window.postsCache = null;
+            window.newsCache = null;
+            window.modsCache = null;
+            window._roomCanSend = null;
+            document.getElementById('app-container').style.display = 'none';
+            document.getElementById('auth-container').style.display = 'flex';
+            showToast('با موفقیت خارج شدید', 'info');
+        }
+
+        function showApp() {
+            document.getElementById('auth-container').style.display = 'none';
+            document.getElementById('app-container').style.display = 'block';
+            updateUI();
+            switchTab('explore');
+            document.getElementById('admin-badge').style.display = window.currentUser?.role === 'admin' ? 'inline-block' : 'none';
+        }
+
+        function updateUI() {
+            if (!window.currentUser) return;
+            document.getElementById('settings-username').textContent = window.currentUser.username + (isSuperAdmin() ? ' 👑' : '');
+            document.getElementById('settings-role').textContent = isSuperAdmin() ? 'ادمین اصلی' : (window.currentUser.role === 'admin' ? 'ادمین' : 'کاربر عادی');
+        }
+
+        function switchTab(tab) {
+            window.currentTab = tab;
+            window.currentRoom = null;
+            window.currentPrivateChat = null;
+            window.isUserChatting = false;
+            window._roomCanSend = null;
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(tab + '-tab').classList.add('active');
+            const idx = ['explore', 'news', 'mods', 'chat', 'settings'].indexOf(tab);
+            if (idx >= 0) document.querySelectorAll('.nav-item')[idx].classList.add('active');
+            document.getElementById('header-title').textContent = {
+                explore: 'اکسپلور', news: 'خبرها', mods: 'مادها', chat: 'چت', settings: 'تنظیمات'
+            }[tab] || 'نکسو';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            if (tab === 'explore') loadPosts(false);
+            else if (tab === 'news') loadNews(false);
+            else if (tab === 'mods') loadMods(false);
+            else if (tab === 'chat') switchChatTab('channels');
+            else if (tab === 'settings') {
+                updateUI();
+                loadUsersList();
+                loadSupportRequests();
+                loadReports();
+            }
+            
+            document.getElementById('create-post-btn').style.display = (window.currentUser?.role === 'admin' && (tab === 'explore' || tab === 'news')) ? 'flex' : 'none';
+            document.getElementById('create-mod-btn').style.display = (isSuperAdmin() && tab === 'mods') ? 'flex' : 'none';
+        }
+
+        function switchChatTab(subTab) {
+            window.chatSubTab = subTab;
+            document.querySelectorAll('.chat-tab-btn').forEach(b => b.classList.remove('active'));
+            if (subTab === 'channels') {
+                document.querySelectorAll('.chat-tab-btn')[0].classList.add('active');
+                document.getElementById('chat-channels-content').style.display = 'block';
+                document.getElementById('chat-private-content').style.display = 'none';
+                loadRooms(false);
+            } else {
+                document.querySelectorAll('.chat-tab-btn')[1].classList.add('active');
+                document.getElementById('chat-channels-content').style.display = 'none';
+                document.getElementById('chat-private-content').style.display = 'block';
+                loadPrivateChatsList(false);
+            }
+        }
+
+        function startLivePolling() {
+            stopLivePolling();
+            window.pollInterval = setInterval(silentPoll, POLL_INTERVAL_MS);
+        }
+
+        function stopLivePolling() {
+            if (window.pollInterval) {
+                clearInterval(window.pollInterval);
+                window.pollInterval = null;
+            }
+        }
+
+        async function silentPoll() {
+            if (!window.currentUser || window.isUserChatting || window.currentRoom || window.currentPrivateChat) return;
+            await refreshAllData();
+        }
+
+        async function refreshAllData() {
+            try {
+                const [postsRes, newsRes, modsRes, roomsRes] = await Promise.all([
+                    sb.from('posts').select('*').order('id', { ascending: false }),
+                    sb.from('news').select('*').order('id', { ascending: false }),
+                    sb.from('mods').select('*').order('id', { ascending: false }),
+                    sb.from('rooms').select('*').order('created_at', { ascending: true })
+                ]);
+                
+                if (postsRes.data) setCachedData('nexo_posts', postsRes.data);
+                if (newsRes.data) setCachedData('nexo_news', newsRes.data);
+                if (modsRes.data) setCachedData('nexo_mods', modsRes.data);
+                if (roomsRes.data) setCachedData('nexo_rooms', roomsRes.data);
+                
+                window.postsCache = null;
+                window.newsCache = null;
+                window.modsCache = null;
+                window.roomsCache = null;
+                window.privateChatsCache = null;
+                
+                if (window.currentTab === 'explore') loadPosts(true);
+                else if (window.currentTab === 'news') loadNews(true);
+                else if (window.currentTab === 'mods') loadMods(true);
+                else if (window.currentTab === 'chat' && window.chatSubTab === 'channels') loadRooms(true);
+            } catch (e) {
+                console.log('Poll error:', e);
+            }
+        }
+
+        // بارگذاری پست‌ها با پشتیبانی کش
+        async function loadPosts(forceRefresh = false) {
+            const container = document.getElementById('posts-container');
+            
+            if (!forceRefresh && window.postsCache) {
+                container.innerHTML = window.postsCache;
+                return;
+            }
+            
+            if (!forceRefresh) {
+                const cachedPosts = getCachedData('nexo_posts');
+                if (cachedPosts && cachedPosts.length > 0) {
+                    window.postsCache = renderPosts(cachedPosts);
+                    container.innerHTML = window.postsCache;
+                    refreshPostsInBackground();
+                    return;
+                }
+            }
+            
+            container.innerHTML = '<div style="text-align:center;padding:60px 20px;">⏳ در حال بارگذاری...</div>';
+            const res = await sb.from('posts').select('*').order('id', { ascending: false });
+            if (!res.data || res.data.length === 0) {
+                container.innerHTML = '<div style="text-align:center;padding:60px 20px;">🖼️<p>هنوز هیچ پستی منتشر نشده</p></div>';
+                window.postsCache = container.innerHTML;
+                setCachedData('nexo_posts', []);
+                return;
+            }
+            setCachedData('nexo_posts', res.data);
+            window.postsCache = renderPosts(res.data);
+            container.innerHTML = window.postsCache;
+        }
+
+        function renderPosts(posts) {
+            return posts.map(p => {
+                const canEdit = window.currentUser?.role === 'admin' && (isSuperAdmin() || p.author === window.currentUser.username);
+                return '<div class="post-card">' +
+                    (canEdit ? '<div class="card-actions"><button class="action-btn edit-btn" onclick="editPost(\'posts\',\'' + p.id + '\')">✏️</button><button class="action-btn delete-btn" onclick="deleteItem(\'posts\',\'' + p.id + '\')">🗑️</button></div>' : '') +
+                    (p.content ? '<p class="post-content-text">' + escapeHtml(p.content) + '</p>' : '') +
+                    (p.image ? '<img src="' + p.image + '" loading="lazy" onerror="this.style.display=\'none\'" style="width:100%;max-height:300px;object-fit:cover;border-radius:12px;margin-top:10px;">' : '') +
+                    (p.video ? '<video src="' + p.video + '" controls preload="none" style="width:100%;border-radius:12px;margin-top:10px;"></video>' : '') +
+                    '<div class="card-meta"><span>📅 ' + (p.date || '') + '</span><span>👤 ' + escapeHtml(p.author || '') + '</span><span class="view-count">👁 ' + (p.views || 0) + '</span></div></div>';
+            }).join('');
+        }
+
+        async function refreshPostsInBackground() {
+            try {
+                const res = await sb.from('posts').select('*').order('id', { ascending: false });
+                if (res.data) {
+                    setCachedData('nexo_posts', res.data);
+                    window.postsCache = renderPosts(res.data);
+                    if (window.currentTab === 'explore' && !window.isUserChatting) {
+                        document.getElementById('posts-container').innerHTML = window.postsCache;
+                    }
+                }
+            } catch (e) {}
+        }
+
+        // بارگذاری خبرها با پشتیبانی کش
+        async function loadNews(forceRefresh = false) {
+            const container = document.getElementById('news-container');
+            
+            if (!forceRefresh && window.newsCache) {
+                container.innerHTML = window.newsCache;
+                return;
+            }
+            
+            if (!forceRefresh) {
+                const cachedNews = getCachedData('nexo_news');
+                if (cachedNews && cachedNews.length > 0) {
+                    window.newsCache = renderNews(cachedNews);
+                    container.innerHTML = window.newsCache;
+                    refreshNewsInBackground();
+                    return;
+                }
+            }
+            
+            container.innerHTML = '<div style="text-align:center;padding:60px 20px;">⏳ در حال بارگذاری...</div>';
+            const res = await sb.from('news').select('*').order('id', { ascending: false });
+            if (!res.data || res.data.length === 0) {
+                container.innerHTML = '<div style="text-align:center;padding:60px 20px;">📰<p>خبری برای نمایش وجود ندارد</p></div>';
+                window.newsCache = container.innerHTML;
+                setCachedData('nexo_news', []);
+                return;
+            }
+            setCachedData('nexo_news', res.data);
+            window.newsCache = renderNews(res.data);
+            container.innerHTML = window.newsCache;
+        }
+
+        function renderNews(newsList) {
+            return newsList.map(n => {
+                const canEdit = window.currentUser?.role === 'admin' && (isSuperAdmin() || n.author === window.currentUser.username);
+                return '<div class="news-card">' +
+                    (canEdit ? '<div class="card-actions"><button class="action-btn edit-btn" onclick="editPost(\'news\',\'' + n.id + '\')">✏️</button><button class="action-btn delete-btn" onclick="deleteItem(\'news\',\'' + n.id + '\')">🗑️</button></div>' : '') +
+                    (n.title ? '<div class="card-title">📌 ' + escapeHtml(n.title) + '</div>' : '') +
+                    (n.content ? '<p class="post-content-text">' + escapeHtml(n.content) + '</p>' : '') +
+                    (n.image ? '<img src="' + n.image + '" loading="lazy" onerror="this.style.display=\'none\'" style="width:100%;max-height:300px;object-fit:cover;border-radius:12px;margin-top:10px;">' : '') +
+                    (n.video ? '<video src="' + n.video + '" controls preload="none" style="width:100%;border-radius:12px;margin-top:10px;"></video>' : '') +
+                    '<div class="card-meta"><span>📅 ' + (n.date || '') + '</span><span>👤 ' + escapeHtml(n.author || '') + '</span><span class="view-count">👁 ' + (n.views || 0) + '</span></div></div>';
+            }).join('');
+        }
+
+        async function refreshNewsInBackground() {
+            try {
+                const res = await sb.from('news').select('*').order('id', { ascending: false });
+                if (res.data) {
+                    setCachedData('nexo_news', res.data);
+                    window.newsCache = renderNews(res.data);
+                    if (window.currentTab === 'news' && !window.isUserChatting) {
+                        document.getElementById('news-container').innerHTML = window.newsCache;
+                    }
+                }
+            } catch (e) {}
+        }
+
+        // بارگذاری مادها با پشتیبانی کش
+        async function loadMods(forceRefresh = false) {
+            const container = document.getElementById('mods-container');
+            
+            if (!forceRefresh && window.modsCache) {
+                container.innerHTML = window.modsCache;
+                return;
+            }
+            
+            if (!forceRefresh) {
+                const cachedMods = getCachedData('nexo_mods');
+                if (cachedMods && cachedMods.length > 0) {
+                    window.modsCache = renderMods(cachedMods);
+                    container.innerHTML = window.modsCache;
+                    refreshModsInBackground();
+                    return;
+                }
+            }
+            
+            container.innerHTML = '<div style="text-align:center;padding:60px 20px;">⏳ در حال بارگذاری...</div>';
+            const res = await sb.from('mods').select('*').order('id', { ascending: false });
+            if (!res.data || res.data.length === 0) {
+                container.innerHTML = '<div style="text-align:center;padding:60px 20px;">🎮<p>هنوز هیچ مادی منتشر نشده</p></div>';
+                window.modsCache = container.innerHTML;
+                setCachedData('nexo_mods', []);
+                return;
+            }
+            setCachedData('nexo_mods', res.data);
+            window.modsCache = renderMods(res.data);
+            container.innerHTML = window.modsCache;
+        }
+
+        function renderMods(modsList) {
+            return modsList.map(m => {
+                const downloadUrl = m.download_url || m.file_data || '';
+                return '<div class="mod-card">' +
+                    (isSuperAdmin() ? '<div class="card-actions"><button class="action-btn edit-btn" onclick="editModPage(\'' + m.id + '\')">✏️</button><button class="action-btn delete-btn" onclick="deleteMod(\'' + m.id + '\')">🗑️</button></div>' : '') +
+                    '<div class="card-title">🎮 ' + escapeHtml(m.name) + '</div>' +
+                    (m.description ? '<p class="post-content-text">' + escapeHtml(m.description) + '</p>' : '') +
+                    '<div class="card-meta"><span>📅 ' + (m.date || '') + '</span><span>👤 ' + escapeHtml(m.author || '') + '</span><span class="view-count">⬇️ ' + (m.downloads || 0) + '</span></div>' +
+                    (downloadUrl ? '<a href="' + downloadUrl + '" target="_blank" class="download-btn" onclick="incrementDownload(\'' + m.id + '\')">⬇️ دانلود</a>' : '<span style="color:var(--text2);font-size:11px;">لینک دانلود موجود نیست</span>') +
+                    '</div>';
+            }).join('');
+        }
+
+        async function refreshModsInBackground() {
+            try {
+                const res = await sb.from('mods').select('*').order('id', { ascending: false });
+                if (res.data) {
+                    setCachedData('nexo_mods', res.data);
+                    window.modsCache = renderMods(res.data);
+                    if (window.currentTab === 'mods' && !window.isUserChatting) {
+                        document.getElementById('mods-container').innerHTML = window.modsCache;
+                    }
+                }
+            } catch (e) {}
+        }
+
+        // بارگذاری اتاق‌ها با پشتیبانی کش
+        async function loadRooms(forceRefresh = false) {
+            const container = document.getElementById('rooms-list');
+            
+            if (!forceRefresh && window.roomsCache) {
+                container.innerHTML = window.roomsCache;
+                attachRoomClickHandlers(container);
+                return;
+            }
+            
+            if (!forceRefresh) {
+                const cachedRooms = getCachedData('nexo_rooms');
+                if (cachedRooms && cachedRooms.length > 0) {
+                    const myMemberships = await sb.from('room_members').select('room_id').eq('username', window.currentUser.username);
+                    const myRoomIds = (myMemberships.data || []).map(m => m.room_id);
+                    
+                    let publicRoom = cachedRooms.find(r => r.is_public === true);
+                    if (publicRoom && !myRoomIds.includes(publicRoom.id)) myRoomIds.push(publicRoom.id);
+                    
+                    const filteredRooms = cachedRooms.filter(r => myRoomIds.includes(r.id));
+                    if (filteredRooms.length > 0) {
+                        window.roomsCache = renderRoomsList(filteredRooms);
+                        container.innerHTML = window.roomsCache;
+                        attachRoomClickHandlers(container);
+                        refreshRoomsInBackground();
+                        return;
+                    }
+                }
+            }
+            
+            container.innerHTML = '<div style="text-align:center;padding:30px;">💬 در حال بارگذاری...</div>';
+            
+            const res = await sb.from('rooms').select('*').order('created_at', { ascending: true });
+            const rooms = res.data || [];
+            
+            let publicRoom = rooms.find(r => r.is_public === true);
+            if (!publicRoom) {
+                const publicRoomId = 'room_public_nexo';
+                await sb.from('rooms').insert([{
+                    id: publicRoomId,
+                    name: 'کانال عمومی نکسو',
+                    bio: 'کانال رسمی نکسو - همه اینجان!',
+                    creator: 'system',
+                    is_public: true,
+                    room_type: 'channel',
+                    is_verified: true,
+                    created_at: new Date().toLocaleDateString('fa-IR')
+                }]);
+                rooms.unshift({
+                    id: publicRoomId,
+                    name: 'کانال عمومی نکسو',
+                    bio: 'کانال رسمی نکسو - همه اینجان!',
+                    creator: 'system',
+                    is_public: true,
+                    room_type: 'channel',
+                    is_verified: true
+                });
+            }
+            
+            setCachedData('nexo_rooms', rooms);
+            
+            const myMemberships = await sb.from('room_members').select('room_id').eq('username', window.currentUser.username);
+            const myRoomIds = (myMemberships.data || []).map(m => m.room_id);
+            
+            if (publicRoom && !myRoomIds.includes(publicRoom.id)) myRoomIds.push(publicRoom.id);
+            
+            const filteredRooms = rooms.filter(r => myRoomIds.includes(r.id));
+            
+            if (filteredRooms.length === 0) {
+                container.innerHTML = '<p style="text-align:center;color:var(--text2);padding:15px;">شما عضو هیچ کانالی نیستید</p>';
+                window.roomsCache = container.innerHTML;
+                return;
+            }
+            
+            window.roomsCache = renderRoomsList(filteredRooms);
+            container.innerHTML = window.roomsCache;
+            attachRoomClickHandlers(container);
+        }
+
+        function renderRoomsList(filteredRooms) {
+            const isMainAdmin = isSuperAdmin();
+            
+            return filteredRooms.map(r => {
+                const isOfficial = r.is_public;
+                const isGroup = r.room_type === 'group';
+                const verifiedBadge = r.is_verified ? ' <span class="verified-badge">✅</span>' : '';
+                const groupBadge = isGroup ? ' <span class="group-badge">👥 گروه</span>' : '';
+                let adminDeleteBtn = '';
+                if (isMainAdmin && !isOfficial) {
+                    adminDeleteBtn = '<span class="admin-room-delete" data-room-id="' + r.id + '" data-room-name="' + escapeHtml(r.name) + '" title="حذف">🗑️</span>';
+                }
+                return '<div class="room-card' + (isOfficial ? ' official' : '') + (isGroup ? ' group-chat' : '') + '" data-room-id="' + r.id + '" style="position:relative;">' +
+                    adminDeleteBtn +
+                    '<div class="room-info"><h3>' + escapeHtml(r.name) + verifiedBadge + groupBadge + '</h3><p>' + escapeHtml(r.bio || '') + ' | سازنده: ' + escapeHtml(r.creator || 'نامشخص') + '</p></div></div>';
+            }).join('');
+        }
+
+        function attachRoomClickHandlers(container) {
+            container.querySelectorAll('.room-card').forEach(card => {
+                card.onclick = function() { openRoom(this.getAttribute('data-room-id')); };
+            });
+            
+            container.querySelectorAll('.admin-room-delete').forEach(btn => {
+                btn.onclick = function(e) {
+                    e.stopPropagation();
+                    deleteRoomByAdmin(this.getAttribute('data-room-id'), this.getAttribute('data-room-name'));
+                };
+            });
+        }
+
+        async function refreshRoomsInBackground() {
+            try {
+                const res = await sb.from('rooms').select('*').order('created_at', { ascending: true });
+                if (res.data) {
+                    setCachedData('nexo_rooms', res.data);
+                    window.roomsCache = null;
+                    if (window.currentTab === 'chat' && window.chatSubTab === 'channels' && !window.isUserChatting) {
+                        loadRooms(true);
+                    }
+                }
+            } catch (e) {}
+        }
+
+        // بارگذاری چت‌های خصوصی با پشتیبانی کش
+        async function loadPrivateChatsList(forceRefresh = false) {
+            const container = document.getElementById('private-chats-list');
+            
+            if (!forceRefresh && window.privateChatsCache) {
+                container.innerHTML = window.privateChatsCache;
+                return;
+            }
+            
+            if (!forceRefresh) {
+                const cachedChats = getCachedData('nexo_private_chats_' + window.currentUser.username);
+                if (cachedChats) {
+                    window.privateChatsCache = cachedChats;
+                    container.innerHTML = cachedChats;
+                    refreshPrivateChatsInBackground();
+                    return;
+                }
+            }
+            
+            const res = await sb.from('chat_messages').select('chat_key').or('chat_key.ilike.%' + window.currentUser.username + '%');
+            
+            const users = new Set();
+            if (res.data) {
+                res.data.forEach(d => {
+                    d.chat_key.split('___').forEach(p => {
+                        if (p !== window.currentUser.username) users.add(p);
+                    });
+                });
+            }
+            
+            if (users.size === 0) {
+                container.innerHTML = '<p style="text-align:center;color:var(--text2);">چت خصوصی نداری</p>';
+                window.privateChatsCache = container.innerHTML;
+                return;
+            }
+            
+            const html = Array.from(users).map(u => 
+                '<div style="padding:10px;cursor:pointer;background:var(--glass);margin:4px 0;border-radius:8px;" data-username="' + u + '" class="private-chat-item">👤 ' + escapeHtml(u) + ' 💬</div>'
+            ).join('');
+            
+            window.privateChatsCache = html;
+            setCachedData('nexo_private_chats_' + window.currentUser.username, html);
+            container.innerHTML = html;
+            
+            container.querySelectorAll('.private-chat-item').forEach(item => {
+                item.onclick = function() {
+                    openPrivateChat(this.getAttribute('data-username'));
+                };
+            });
+        }
+
+        async function refreshPrivateChatsInBackground() {
+            try {
+                const res = await sb.from('chat_messages').select('chat_key').or('chat_key.ilike.%' + window.currentUser.username + '%');
+                const users = new Set();
+                if (res.data) {
+                    res.data.forEach(d => {
+                        d.chat_key.split('___').forEach(p => {
+                            if (p !== window.currentUser.username) users.add(p);
+                        });
+                    });
+                }
+                
+                if (users.size === 0) {
+                    window.privateChatsCache = '<p style="text-align:center;color:var(--text2);">چت خصوصی نداری</p>';
+                } else {
+                    window.privateChatsCache = Array.from(users).map(u => 
+                        '<div style="padding:10px;cursor:pointer;background:var(--glass);margin:4px 0;border-radius:8px;" data-username="' + u + '" class="private-chat-item">👤 ' + escapeHtml(u) + ' 💬</div>'
+                    ).join('');
+                }
+                
+                setCachedData('nexo_private_chats_' + window.currentUser.username, window.privateChatsCache);
+                
+                if (window.currentTab === 'chat' && window.chatSubTab === 'private' && !window.isUserChatting) {
+                    document.getElementById('private-chats-list').innerHTML = window.privateChatsCache;
+                    document.querySelectorAll('.private-chat-item').forEach(item => {
+                        item.onclick = function() {
+                            openPrivateChat(this.getAttribute('data-username'));
+                        };
+                    });
+                }
+            } catch (e) {}
+        }
+
+        // بقیه توابع بدون تغییر
+        async function deleteRoomByAdmin(roomId, roomName) {
+            if (!isSuperAdmin()) return;
+            if (!confirm('حذف کامل «' + roomName + '» برای همه؟')) return;
+            await sb.from('room_messages').delete().eq('room_id', roomId);
+            await sb.from('room_members').delete().eq('room_id', roomId);
+            await sb.from('rooms').delete().eq('id', roomId);
+            window.roomsCache = null;
+            setCachedData('nexo_rooms', null);
+            loadRooms(true);
+            showToast('«' + roomName + '» حذف شد', 'success');
+        }
+
+        function openCreateRoomPage(type) {
+            window.createRoomType = type;
+            document.getElementById('create-room-title').textContent = type === 'group' ? '👥 ساخت گروه جدید' : '📢 ساخت کانال جدید';
+            document.getElementById('create-room-name').value = '';
+            document.getElementById('create-room-bio').value = '';
+            document.getElementById('create-room-all-members').checked = false;
+            document.getElementById('create-room-members-can-send').checked = false;
+            document.getElementById('create-room-select-members').style.display = 'none';
+            document.getElementById('create-room-members-can-send-wrap').style.display = type === 'group' ? 'block' : 'none';
+            showPage('create-room-page');
+            document.getElementById('header-title').textContent = type === 'group' ? 'گروه جدید' : 'کانال جدید';
+            
+            document.getElementById('create-room-all-members').onchange = function() {
+                document.getElementById('create-room-select-members').style.display = this.checked ? 'none' : 'block';
+                if (!this.checked) loadMembersCheckboxList();
+            };
+        }
+
+        async function loadMembersCheckboxList() {
+            const res = await sb.from('users').select('username').order('id');
+            document.getElementById('members-checkbox-list').innerHTML = (res.data || [])
+                .filter(u => u.username !== window.currentUser.username)
+                .map(u => '<div class="checkbox-item"><input type="checkbox" value="' + u.username + '" class="member-checkbox"><label>' + escapeHtml(u.username) + '</label></div>')
+                .join('');
+        }
+
+        function toggleAllMembers() {
+            const checked = document.getElementById('select-all-members').checked;
+            document.querySelectorAll('.member-checkbox').forEach(cb => cb.checked = checked);
+        }
+
+        async function createRoom() {
+            const name = document.getElementById('create-room-name').value.trim();
+            const bio = document.getElementById('create-room-bio').value.trim();
+            const allMembers = document.getElementById('create-room-all-members').checked;
+            const membersCanSend = document.getElementById('create-room-members-can-send').checked;
+            
+            if (!name) { showToast('اسم الزامی است', 'error'); return; }
+            
+            disableBtn('create-room-btn', '⏳');
+            
+            const roomId = (window.createRoomType === 'group' ? 'group_' : 'room_') + Date.now();
+            const now = new Date().toLocaleDateString('fa-IR');
+            
+            const result = await sb.from('rooms').insert([{
+                id: roomId,
+                name: name,
+                bio: bio,
+                creator: window.currentUser.username,
+                is_public: false,
+                room_type: window.createRoomType,
+                members_can_send: membersCanSend,
+                is_verified: false,
+                created_at: now
+            }]);
+            
+            if (result.error) {
+                showToast('خطا: ' + result.error.message, 'error');
+                enableBtn('create-room-btn', '🚀 ساخت');
+                return;
+            }
+            
+            await sb.from('room_members').insert([{
+                id: 'mem_' + Date.now(),
+                room_id: roomId,
+                username: window.currentUser.username,
+                role: 'creator',
+                permissions: JSON.stringify({ can_change_name: true, can_change_bio: true, can_delete_messages: true, can_pin: true, can_add_admin: true }),
+                joined_at: now
+            }]);
+            
+            if (allMembers) {
+                const allUsers = await sb.from('users').select('username');
+                if (allUsers.data) {
+                    for (let i = 0; i < allUsers.data.length; i++) {
+                        if (allUsers.data[i].username !== window.currentUser.username) {
+                            await sb.from('room_members').insert([{
+                                id: 'mem_' + Date.now() + i,
+                                room_id: roomId,
+                                username: allUsers.data[i].username,
+                                role: 'member',
+                                permissions: '{}',
+                                joined_at: now
+                            }]);
+                        }
+                    }
+                }
+            } else {
+                const selected = document.querySelectorAll('.member-checkbox:checked');
+                for (let j = 0; j < selected.length; j++) {
+                    await sb.from('room_members').insert([{
+                        id: 'mem_' + Date.now() + j,
+                        room_id: roomId,
+                        username: selected[j].value,
+                        role: 'member',
+                        permissions: '{}',
+                        joined_at: now
+                    }]);
+                }
+            }
+            
+            window.roomsCache = null;
+            setCachedData('nexo_rooms', null);
+            goBackToChatList();
+            showToast('ساخته شد! 🎉', 'success');
+        }
+
+        async function openRoom(roomId) {
+            const res = await sb.from('rooms').select('*').eq('id', roomId).single();
+            if (!res.data) { showToast('کانال یافت نشد', 'error'); return; }
+            
+            const room = res.data;
+            
+            if (room.is_public) {
+                const memCheck = await sb.from('room_members').select('*').eq('room_id', roomId).eq('username', window.currentUser.username).single();
+                if (!memCheck.data) {
+                    await sb.from('room_members').insert([{
+                        id: 'mem_' + Date.now(),
+                        room_id: roomId,
+                        username: window.currentUser.username,
+                        role: 'member',
+                        permissions: '{}',
+                        joined_at: new Date().toLocaleDateString('fa-IR')
+                    }]);
+                }
+            } else {
+                const memberCheck = await sb.from('room_members').select('*').eq('room_id', roomId).eq('username', window.currentUser.username).single();
+                if (!memberCheck.data) { showToast('شما عضو نیستید', 'error'); return; }
+            }
+            
+            window.currentRoom = room;
+            window.currentPrivateChat = null;
+            window.replyToMessage = null;
+            window.isUserChatting = true;
+            window._roomCanSend = null;
+            
+            showPage('room-view');
+            document.getElementById('room-view-title').textContent = room.name;
+            document.getElementById('header-title').textContent = '💬 ' + room.name;
+            
+            const threeDots = document.getElementById('room-three-dots');
+            threeDots.style.display = (room.is_public && !isSuperAdmin()) ? 'none' : 'inline-block';
+            
+            document.getElementById('reply-preview').style.display = 'none';
+            
+            let canSend = isSuperAdmin();
+            if (!canSend) {
+                const memberRes = await sb.from('room_members').select('*').eq('room_id', roomId).eq('username', window.currentUser.username).single();
+                if (memberRes.data) {
+                    if (memberRes.data.role === 'creator' || memberRes.data.role === 'admin') {
+                        canSend = true;
+                    } else if (room.members_can_send === true) {
+                        canSend = true;
+                    }
+                }
+            }
+            
+            window._roomCanSend = canSend;
+            const inputArea = document.getElementById('room-chat-input-area');
+            inputArea.style.display = canSend ? 'flex' : 'none';
+            document.getElementById('room-chat-input').disabled = !canSend;
+            
+            await renderRoomMessages(true);
+        }
+
+        function goBackToChatList() {
+            window.currentRoom = null;
+            window.currentPrivateChat = null;
+            window.replyToMessage = null;
+            window.privateReplyToMessage = null;
+            window.isUserChatting = false;
+            window._roomCanSend = null;
+            showPage('chat-tab');
+            document.getElementById('header-title').textContent = 'چت';
+            
+            if (window.chatSubTab === 'channels') {
+                document.getElementById('chat-channels-content').style.display = 'block';
+                document.getElementById('chat-private-content').style.display = 'none';
+                loadRooms(false);
+            } else {
+                document.getElementById('chat-channels-content').style.display = 'none';
+                document.getElementById('chat-private-content').style.display = 'block';
+                loadPrivateChatsList(false);
+            }
+        }
+
+        function goBackToRoom() {
+            if (!window.currentRoom) { goBackToChatList(); return; }
+            window.isUserChatting = true;
+            showPage('room-view');
+            document.getElementById('header-title').textContent = '💬 ' + window.currentRoom.name;
+        }
+
+        function goBackToRoomSettings() {
+            showPage('room-settings-page');
+            document.getElementById('header-title').textContent = '⚙️ تنظیمات';
+        }
+
+        async function openRoomSettingsPage() {
+            if (!window.currentRoom) return;
+            if (window.currentRoom.is_public && !isSuperAdmin()) return;
+            
+            const checkRes = window.currentRoom.is_public 
+                ? { data: { role: 'admin' } }
+                : await sb.from('room_members').select('*').eq('room_id', window.currentRoom.id).eq('username', window.currentUser.username).single();
+            
+            if (!checkRes.data || (checkRes.data.role !== 'creator' && checkRes.data.role !== 'admin' && !isSuperAdmin())) {
+                showToast('دسترسی ندارید', 'error');
+                return;
+            }
+            
+            document.getElementById('room-settings-name').value = window.currentRoom.name;
+            document.getElementById('room-settings-bio').value = window.currentRoom.bio || '';
+            showPage('room-settings-page');
+            document.getElementById('header-title').textContent = '⚙️ تنظیمات';
+        }
+
+        async function saveRoomSettings() {
+            if (!window.currentRoom) return;
+            const newName = document.getElementById('room-settings-name').value.trim();
+            const newBio = document.getElementById('room-settings-bio').value.trim();
+            
+            if (newName) {
+                await sb.from('rooms').update({ name: newName }).eq('id', window.currentRoom.id);
+                window.currentRoom.name = newName;
+            }
+            await sb.from('rooms').update({ bio: newBio }).eq('id', window.currentRoom.id);
+            window.currentRoom.bio = newBio;
+            window.roomsCache = null;
+            setCachedData('nexo_rooms', null);
+            showToast('ذخیره شد', 'success');
+            goBackToRoom();
+        }
+
+        async function addAdminToRoom() {
+            if (!window.currentRoom) return;
+            
+            if (!isSuperAdmin()) {
+                const myMembership = await sb.from('room_members').select('*').eq('room_id', window.currentRoom.id).eq('username', window.currentUser.username).single();
+                if (!myMembership.data || (myMembership.data.role !== 'creator' && myMembership.data.role !== 'admin')) {
+                    showToast('شما دسترسی اضافه کردن ادمین ندارید', 'error');
+                    return;
+                }
+            }
+            
+            const adminUser = document.getElementById('new-admin-username').value.trim();
+            if (!adminUser) { showToast('نام کاربری را وارد کنید', 'error'); return; }
+            
+            const userCheck = await sb.from('users').select('*').eq('username', adminUser).single();
+            if (!userCheck.data) { showToast('کاربر یافت نشد', 'error'); return; }
+            
+            const existingMember = await sb.from('room_members').select('*').eq('room_id', window.currentRoom.id).eq('username', adminUser).single();
+            if (existingMember.data) {
+                await sb.from('room_members').update({ role: 'admin' }).eq('id', existingMember.data.id);
+            } else {
+                await sb.from('room_members').insert([{
+                    id: 'mem_' + Date.now(),
+                    room_id: window.currentRoom.id,
+                    username: adminUser,
+                    role: 'admin',
+                    permissions: '{}',
+                    joined_at: new Date().toLocaleDateString('fa-IR')
+                }]);
+            }
+            
+            document.getElementById('new-admin-username').value = '';
+            showToast('ادمین اضافه شد', 'success');
+        }
+
+        function openAddMembersPage() {
+            showPage('add-members-page');
+            document.getElementById('header-title').textContent = '👥 افزودن اعضا';
+            loadAddMembersList();
+        }
+
+        async function loadAddMembersList() {
+            if (!window.currentRoom) return;
+            const allUsers = await sb.from('users').select('username').order('id');
+            const currentMembers = await sb.from('room_members').select('username').eq('room_id', window.currentRoom.id);
+            const currentUsernames = (currentMembers.data || []).map(m => m.username);
+            
+            document.getElementById('add-members-list').innerHTML = (allUsers.data || [])
+                .filter(u => !currentUsernames.includes(u.username) && u.username !== window.currentUser.username)
+                .map(u => '<div class="checkbox-item"><input type="checkbox" value="' + u.username + '" class="add-member-checkbox"><label>' + escapeHtml(u.username) + '</label></div>')
+                .join('');
+        }
+
+        function toggleAllAddMembers() {
+            const checked = document.getElementById('select-all-add-members').checked;
+            document.querySelectorAll('.add-member-checkbox').forEach(cb => cb.checked = checked);
+        }
+
+        async function addSelectedMembers() {
+            if (!window.currentRoom) return;
+            const selected = document.querySelectorAll('.add-member-checkbox:checked');
+            const now = new Date().toLocaleDateString('fa-IR');
+            
+            for (let i = 0; i < selected.length; i++) {
+                await sb.from('room_members').insert([{
+                    id: 'mem_' + Date.now() + i,
+                    room_id: window.currentRoom.id,
+                    username: selected[i].value,
+                    role: 'member',
+                    permissions: '{}',
+                    joined_at: now
+                }]);
+            }
+            
+            showToast(selected.length + ' عضو اضافه شد', 'success');
+            goBackToRoomSettings();
+        }
+
+        async function renderRoomMessages(isFirstLoad) {
+            if (!window.currentRoom) return;
+            const container = document.getElementById('room-chat-messages');
+            const roomId = window.currentRoom.id;
+            const lastTs = window.lastMessageTimestamp[roomId] || 0;
+            
+            let query = sb.from('room_messages').select('*').eq('room_id', roomId).order('timestamp', { ascending: true });
+            if (!isFirstLoad && lastTs > 0) query = query.gt('timestamp', lastTs);
+            
+            const res = await query;
+            const msgs = res.data || [];
+            
+            if (msgs.length === 0) {
+                if (isFirstLoad) container.innerHTML = '<div style="text-align:center;padding:30px;">پیامی نیست ✍️</div>';
+                return;
+            }
+            
+            if (msgs.length > 0) window.lastMessageTimestamp[roomId] = msgs[msgs.length - 1].timestamp;
+            
+            let canSend = window._roomCanSend;
+            if (canSend === null || canSend === undefined) {
+                canSend = isSuperAdmin();
+                if (!canSend && window.currentRoom) {
+                    const memberRes = await sb.from('room_members').select('*').eq('room_id', roomId).eq('username', window.currentUser.username).single();
+                    if (memberRes.data) {
+                        if (memberRes.data.role === 'creator' || memberRes.data.role === 'admin') canSend = true;
+                        else if (window.currentRoom.members_can_send === true) canSend = true;
+                    }
+                }
+                window._roomCanSend = canSend;
+            }
+            
+            function buildMsg(m) {
+                if (m.deleted_for_all) return '<div class="chat-message deleted">🗑️ حذف شد</div>';
+                const isMine = m.sender === window.currentUser.username;
+                const senderInfo = window.senderRolesCache[m.sender] || {};
+                const isAdmin = senderInfo.role === 'admin' || senderInfo.id === 1;
+                const adminBadge = isAdmin ? ' <span class="admin-badge-chat">👑</span>' : '';
+                
+                let replyHtml = '';
+                if (m.reply_to) {
+                    const repliedMsg = msgs.find(r => r.id === m.reply_to);
+                    if (repliedMsg && !repliedMsg.deleted_for_all) {
+                        replyHtml = '<div style="font-size:10px;opacity:0.7;margin-bottom:4px;border-right:2px solid var(--accent);padding-right:6px;">↩ <strong>' + escapeHtml(repliedMsg.sender) + '</strong>: ' + escapeHtml((repliedMsg.text || '').substring(0, 40)) + '</div>';
+                    }
+                }
+                
+                const pvLink = !isMine ? ' <span class="pv-link" data-username="' + m.sender + '">💬</span>' : '';
+                const replyBtn = (canSend && !m.deleted_for_all) ? ' <span class="reply-btn" data-msg-id="' + m.id + '" data-sender="' + escapeHtml(m.sender) + '" data-preview="' + escapeHtml((m.text || '').substring(0, 30)) + '">↩️</span>' : '';
+                const deleteBtn = (isMine || isSuperAdmin()) ? '<span data-msg-id="' + m.id + '" class="delete-msg-btn" style="cursor:pointer;color:var(--danger);margin-right:8px;">🗑️</span>' : '';
+                
+                return '<div class="chat-message ' + (isMine ? 'user' : 'other') + '">' + replyHtml + '<strong>' + escapeHtml(m.sender) + '</strong>' + adminBadge + '<br>' + escapeHtml(m.text) + '<br><small>' + m.time + '</small> ' + pvLink + replyBtn + deleteBtn + '</div>';
+            }
+            
+            const newHtml = msgs.map(buildMsg).join('');
+            
+            if (isFirstLoad) {
+                const senders = [...new Set(msgs.map(m => m.sender))];
+                for (const sender of senders) {
+                    if (!window.senderRolesCache[sender]) {
+                        try {
+                            const userRes = await sb.from('users').select('role, id').eq('username', sender).single();
+                            window.senderRolesCache[sender] = userRes.data ? { role: userRes.data.role, id: userRes.data.id } : { role: 'user', id: 0 };
+                        } catch (e) {
+                            window.senderRolesCache[sender] = { role: 'user', id: 0 };
+                        }
+                    }
+                }
+                
+                const finalHtml = msgs.map(buildMsg).join('');
+                const pinned = msgs.find(m => m.is_pinned && !m.deleted_for_all);
+                const pinBar = document.getElementById('pinned-message-bar');
+                
+                if (pinned) {
+                    pinBar.style.display = 'flex';
+                    document.getElementById('pinned-message-text').textContent = '📌 ' + pinned.sender + ': ' + (pinned.text || '').substring(0, 50);
+                } else {
+                    pinBar.style.display = 'none';
+                }
+                
+                container.innerHTML = finalHtml;
+            } else {
+                const existingContent = container.innerHTML;
+                container.innerHTML = existingContent.includes('پیامی نیست') ? newHtml : existingContent + newHtml;
+            }
+            
+            const wasAtBottom = container.scrollHeight - container.scrollTop - container.clientHeight < 100;
+            if (wasAtBottom || isFirstLoad || !window.isUserChatting) {
+                container.scrollTop = container.scrollHeight;
+            }
+            
+            attachChatListeners(container);
+        }
+
+        function attachChatListeners(container) {
+            container.querySelectorAll('.delete-msg-btn').forEach(btn => {
+                btn.onclick = function(e) {
+                    e.stopPropagation();
+                    deleteRoomMessage(this.getAttribute('data-msg-id'));
+                };
+            });
+            
+            container.querySelectorAll('.pv-link').forEach(link => {
+                link.onclick = function(e) {
+                    e.stopPropagation();
+                    openPrivateChat(this.getAttribute('data-username'));
+                };
+            });
+            
+            container.querySelectorAll('.reply-btn').forEach(btn => {
+                btn.onclick = function(e) {
+                    e.stopPropagation();
+                    replyToRoomMessage(this.getAttribute('data-msg-id'), this.getAttribute('data-sender'), this.getAttribute('data-preview'));
+                };
+            });
+        }
+
+        async function sendRoomMessage() {
+            if (!window.currentRoom) return;
+            if (document.getElementById('room-send-btn').disabled) return;
+            
+            window.isUserChatting = true;
+            
+            let canSend = window._roomCanSend;
+            if (canSend === null || canSend === undefined) {
+                canSend = isSuperAdmin();
+                if (!canSend) {
+                    const memberRes = await sb.from('room_members').select('*').eq('room_id', window.currentRoom.id).eq('username', window.currentUser.username).single();
+                    if (memberRes.data) {
+                        if (memberRes.data.role === 'creator' || memberRes.data.role === 'admin') canSend = true;
+                        else if (window.currentRoom.members_can_send === true) canSend = true;
+                    }
+                }
+                window._roomCanSend = canSend;
+            }
+            
+            if (!canSend) {
+                showToast('شما اجازه ارسال پیام در این کانال را ندارید', 'error');
+                return;
+            }
+            
+            const text = document.getElementById('room-chat-input').value.trim();
+            if (!text) return;
+            
+            disableBtn('room-send-btn', '⏳');
+            
+            const now = new Date();
+            const msg = {
+                id: 'rmsg_' + Date.now(),
+                room_id: window.currentRoom.id,
+                sender: window.currentUser.username,
+                text: text,
+                reply_to: window.replyToMessage ? window.replyToMessage.id : null,
+                is_pinned: false,
+                deleted_for_all: false,
+                time: now.toLocaleTimeString('fa-IR'),
+                timestamp: Date.now()
+            };
+            
+            const result = await sb.from('room_messages').insert([msg]);
+            if (result.error) {
+                showToast('خطا', 'error');
+                enableBtn('room-send-btn', '📨');
+                return;
+            }
+            
+            document.getElementById('room-chat-input').value = '';
+            cancelReply();
+            await renderRoomMessages(false);
+            enableBtn('room-send-btn', '📨');
+        }
+
+        function replyToRoomMessage(id, sender, preview) {
+            window.replyToMessage = { id: id, sender: sender };
+            document.getElementById('reply-preview').style.display = 'flex';
+            document.getElementById('reply-preview-text').textContent = '↩ ' + sender + ': ' + (preview || '');
+            document.getElementById('room-chat-input').focus();
+        }
+
+        function cancelReply() {
+            window.replyToMessage = null;
+            document.getElementById('reply-preview').style.display = 'none';
+        }
+
+        async function deleteRoomMessage(msgId) {
+            if (!confirm('حذف؟')) return;
+            await sb.from('room_messages').update({ deleted_for_all: true }).eq('id', msgId);
+            await renderRoomMessages(true);
+        }
+
+        function toggleRoomContextMenu(event) {
+            event.stopPropagation();
+            const menu = document.getElementById('room-context-menu');
+            closeAllMenus();
+            menu.classList.toggle('show');
+            positionContextMenu(menu, event);
+        }
+
+        async function leaveRoom() {
+            if (!window.currentRoom || window.currentRoom.is_public) return;
+            if (!confirm('ترک کانال؟')) return;
+            await sb.from('room_members').delete().eq('room_id', window.currentRoom.id).eq('username', window.currentUser.username);
+            window.roomsCache = null;
+            setCachedData('nexo_rooms', null);
+            closeAllMenus();
+            goBackToChatList();
+            showToast('خارج شدید', 'info');
+        }
+
+        function reportRoom() {
+            if (!window.currentRoom) return;
+            closeAllMenus();
+            openReportModal(window.currentRoom.id, window.currentRoom.creator);
+        }
+
+        function closeAllMenus() {
+            document.getElementById('room-context-menu').classList.remove('show');
+            document.getElementById('private-context-menu').classList.remove('show');
+        }
+
+        async function unpinMessage() {
+            await sb.from('room_messages').update({ is_pinned: false }).eq('room_id', window.currentRoom.id);
+            await renderRoomMessages(true);
+        }
+
+        // چت خصوصی
+        async function searchChatUsers() {
+            const query = document.getElementById('chat-user-search').value.trim();
+            const container = document.getElementById('chat-user-search-results');
+            
+            if (!query) { container.innerHTML = ''; return; }
+            
+            const res = await sb.from('users').select('username').ilike('username', '%' + query + '%').limit(10);
+            if (!res.data || res.data.length === 0) {
+                container.innerHTML = '<p style="font-size:12px;color:var(--text2);">کاربری یافت نشد</p>';
+                return;
+            }
+            
+            container.innerHTML = res.data
+                .filter(u => u.username !== window.currentUser.username)
+                .map(u => '<div style="padding:10px;cursor:pointer;background:var(--glass);margin:4px 0;border-radius:8px;" data-username="' + u.username + '" class="search-user-item">👤 ' + escapeHtml(u.username) + ' 💬</div>')
+                .join('');
+            
+            container.querySelectorAll('.search-user-item').forEach(item => {
+                item.onclick = function() {
+                    document.getElementById('chat-user-search').value = '';
+                    container.innerHTML = '';
+                    openPrivateChat(this.getAttribute('data-username'));
+                };
+            });
+        }
+
+        async function openPrivateChat(username) {
+            if (username === window.currentUser.username) return;
+            
+            window.currentPrivateChat = username;
+            window.currentRoom = null;
+            window.privateReplyToMessage = null;
+            window.isUserChatting = true;
+            
+            showPage('private-chat-view');
+            document.getElementById('private-chat-title').textContent = '💬 ' + username;
+            document.getElementById('header-title').textContent = '💬 ' + username;
+            
+            const blockCheck = await checkBlock(window.currentPrivateChat, window.currentUser.username);
+            document.getElementById('private-chat-input').disabled = blockCheck;
+            document.getElementById('private-chat-input').placeholder = blockCheck ? 'مسدود شده‌اید' : 'پیام...';
+            
+            const userRes = await sb.from('users').select('role, id').eq('username', username).single();
+            if (userRes.data && (userRes.data.role === 'admin' || userRes.data.id === 1)) {
+                document.getElementById('private-chat-title').textContent = '💬 ' + username + ' 👑';
+            }
+            
+            await renderPrivateMessages();
+        }
+
+        async function renderPrivateMessages() {
+            if (!window.currentPrivateChat) return;
+            
+            const container = document.getElementById('private-chat-messages');
+            const chatKey = getPrivateChatKey(window.currentUser.username, window.currentPrivateChat);
+            const res = await sb.from('chat_messages').select('*').eq('chat_key', chatKey).order('timestamp', { ascending: true });
+            const msgs = res.data || [];
+            
+            if (msgs.length === 0) {
+                container.innerHTML = '<div style="text-align:center;padding:30px;">پیامی نیست ✍️</div>';
+                return;
+            }
+            
+            const otherRes = await sb.from('users').select('role, id').eq('username', window.currentPrivateChat).single();
+            const otherIsAdmin = otherRes.data && (otherRes.data.role === 'admin' || otherRes.data.id === 1);
+            
+            container.innerHTML = msgs.map(m => {
+                const isMine = m.sender === window.currentUser.username;
+                
+                let replyHtml = '';
+                if (m.reply_to) {
+                    const rm = msgs.find(r => r.id === m.reply_to);
+                    if (rm) {
+                        replyHtml = '<div style="font-size:10px;opacity:0.7;margin-bottom:4px;border-right:2px solid var(--accent);padding-right:6px;">↩ <strong>' + escapeHtml(rm.sender) + '</strong>: ' + escapeHtml((rm.text || '').substring(0, 40)) + '</div>';
+                    }
+                }
+                
+                const badge = (!isMine && otherIsAdmin) ? ' <span class="admin-badge-chat">👑</span>' : '';
+                const replyBtn = ' <span class="reply-btn" data-msg-id="' + m.id + '" data-sender="' + escapeHtml(m.sender) + '" data-preview="' + escapeHtml((m.text || '').substring(0, 30)) + '">↩️</span>';
+                const deleteBtn = (isMine || isSuperAdmin()) ? '<span data-msg-id="' + m.id + '" class="delete-pmsg-btn" style="cursor:pointer;color:var(--danger);margin-right:8px;">🗑️</span>' : '';
+                
+                return '<div class="chat-message ' + (isMine ? 'user' : 'other') + '">' + replyHtml + '<strong>' + escapeHtml(m.sender) + '</strong>' + badge + '<br>' + escapeHtml(m.text) + '<br><small>' + m.time + '</small> ' + replyBtn + deleteBtn + '</div>';
+            }).join('');
+            
+            container.scrollTop = container.scrollHeight;
+            
+            container.querySelectorAll('.delete-pmsg-btn').forEach(btn => {
+                btn.onclick = function(e) {
+                    e.stopPropagation();
+                    deletePrivateMessage(this.getAttribute('data-msg-id'));
+                };
+            });
+            
+            container.querySelectorAll('.reply-btn').forEach(btn => {
+                btn.onclick = function(e) {
+                    e.stopPropagation();
+                    replyToPrivateMessage(this.getAttribute('data-msg-id'), this.getAttribute('data-sender'), this.getAttribute('data-preview'));
+                };
+            });
+        }
+
+        async function sendPrivateMessage() {
+            if (!window.currentPrivateChat) return;
+            if (document.getElementById('private-send-btn').disabled) return;
+            
+            window.isUserChatting = true;
+            
+            const text = document.getElementById('private-chat-input').value.trim();
+            if (!text) return;
+            
+            const iBlockedThem = await checkBlock(window.currentUser.username, window.currentPrivateChat);
+            const theyBlockedMe = await checkBlock(window.currentPrivateChat, window.currentUser.username);
+            
+            if (iBlockedThem) { showToast('شما این کاربر را مسدود کرده‌اید', 'error'); return; }
+            if (theyBlockedMe) { showToast('شما توسط این کاربر مسدود شده‌اید', 'error'); return; }
+            
+            disableBtn('private-send-btn', '⏳');
+            
+            const chatKey = getPrivateChatKey(window.currentUser.username, window.currentPrivateChat);
+            await sb.from('chat_messages').insert([{
+                chat_key: chatKey,
+                sender: window.currentUser.username,
+                text: text,
+                reply_to: window.privateReplyToMessage ? window.privateReplyToMessage.id : null,
+                time: new Date().toLocaleTimeString('fa-IR'),
+                timestamp: Date.now()
+            }]);
+            
+            document.getElementById('private-chat-input').value = '';
+            cancelPrivateReply();
+            await renderPrivateMessages();
+            enableBtn('private-send-btn', '📨');
+        }
+
+        function replyToPrivateMessage(id, sender, preview) {
+            window.privateReplyToMessage = { id: id, sender: sender };
+            document.getElementById('private-reply-preview').style.display = 'flex';
+            document.getElementById('private-reply-preview-text').textContent = '↩ ' + sender + ': ' + (preview || '');
+            document.getElementById('private-chat-input').focus();
+        }
+
+        function cancelPrivateReply() {
+            window.privateReplyToMessage = null;
+            document.getElementById('private-reply-preview').style.display = 'none';
+        }
+
+        async function deletePrivateMessage(msgId) {
+            if (!confirm('حذف؟')) return;
+            if (isSuperAdmin()) {
+                await sb.from('chat_messages').delete().eq('id', msgId);
+            } else {
+                await sb.from('chat_messages').delete().eq('id', msgId).eq('sender', window.currentUser.username);
+            }
+            await renderPrivateMessages();
+        }
+
+        function togglePrivateContextMenu(event) {
+            event.stopPropagation();
+            const menu = document.getElementById('private-context-menu');
+            closeAllMenus();
+            menu.classList.toggle('show');
+            positionContextMenu(menu, event);
+        }
+
+        async function blockUser() {
+            closeAllMenus();
+            if (!window.currentPrivateChat || !confirm('مسدود کردن ' + window.currentPrivateChat + '؟')) return;
+            await sb.from('blocks').insert([{
+                id: 'blk_' + Date.now(),
+                blocker: window.currentUser.username,
+                blocked: window.currentPrivateChat,
+                created_at: new Date().toLocaleDateString('fa-IR')
+            }]);
+            showToast('مسدود شد', 'success');
+            goBackToChatList();
+        }
+
+        async function checkBlock(blocker, blocked) {
+            const res = await sb.from('blocks').select('*').eq('blocker', blocker).eq('blocked', blocked).single();
+            return !!res.data;
+        }
+
+        function reportUser() {
+            if (!window.currentPrivateChat) return;
+            closeAllMenus();
+            openReportModal(null, window.currentPrivateChat);
+        }
+
+        // گزارش‌ها
+        function openReportModal(roomId, reportedUser) {
+            const reasons = ['📢 اسپم', '🗣️ فحاشی', '🔞 محتوای نامناسب', '🕵️ جعل هویت', '🛡️ نقض قوانین', '✍️ دلیل دیگه'];
+            const chosen = prompt('دلیل:\n\n' + reasons.map((r, i) => (i + 1) + '. ' + r).join('\n') + '\n\nشماره:');
+            if (!chosen) return;
+            
+            const idx = parseInt(chosen) - 1;
+            if (isNaN(idx) || idx < 0 || idx >= reasons.length) return;
+            
+            const desc = idx === 5 ? (prompt('توضیحات:') || '') : '';
+            const reported = reportedUser || (window.currentRoom ? window.currentRoom.creator : 'unknown');
+            const chatKey = reportedUser ? getPrivateChatKey(window.currentUser.username, reportedUser) : '';
+            
+            sb.from('reports').insert([{
+                id: 'rep_' + Date.now(),
+                reporter: window.currentUser.username,
+                reported: reported,
+                reason: reasons[idx],
+                description: desc,
+                chat_key: chatKey,
+                room_id: roomId || '',
+                status: 'pending',
+                created_at: new Date().toLocaleDateString('fa-IR')
+            }]).then(() => {
+                showToast('گزارش ثبت شد ✅', 'success');
+                updateReportsBadge();
+            }).catch(() => {
+                showToast('خطا', 'error');
+            });
+        }
+
+        async function loadReports() {
+            if (!isSuperAdmin()) {
+                document.getElementById('admin-reports-section').style.display = 'none';
+                document.getElementById('reports-nav-badge').style.display = 'none';
+                return;
+            }
+            
+            document.getElementById('admin-reports-section').style.display = 'block';
+            const res = await sb.from('reports').select('*').order('created_at', { ascending: false });
+            
+            if (!res.data || res.data.length === 0) {
+                document.getElementById('reports-list').innerHTML = '<p style="text-align:center;padding:15px;">گزارشی ثبت نشده</p>';
+                document.getElementById('reports-count-badge').style.display = 'none';
+                document.getElementById('reports-nav-badge').style.display = 'none';
+                return;
+            }
+            
+            const pendingCount = res.data.filter(r => r.status === 'pending').length;
+            document.getElementById('reports-count-badge').textContent = pendingCount;
+            document.getElementById('reports-count-badge').style.display = pendingCount > 0 ? 'inline-block' : 'none';
+            document.getElementById('reports-nav-badge').textContent = pendingCount;
+            document.getElementById('reports-nav-badge').style.display = pendingCount > 0 ? 'flex' : 'none';
+            
+            document.getElementById('reports-list').innerHTML = res.data.map(r => {
+                let actions = '';
+                if (r.chat_key) actions += '<button class="btn btn-sm" style="margin:4px;" onclick="reviewReportChat(\'' + r.chat_key + '\')">📋 چت</button>';
+                if (r.room_id) actions += '<button class="btn btn-sm" style="margin:4px;" onclick="reviewReportRoom(\'' + r.room_id + '\')">📋 کانال</button>';
+                actions += '<button class="btn btn-sm btn-danger" style="margin:4px;" onclick="deleteReportedUser(\'' + escapeHtml(r.reported) + '\',\'' + r.id + '\')">🗑️ حذف</button>';
+                
+                return '<div style="background:var(--glass);padding:12px;border-radius:10px;margin-bottom:8px;"><strong>🚩 ' + escapeHtml(r.reason) + '</strong><br>گزارش‌دهنده: ' + escapeHtml(r.reporter) + '<br>گزارش‌شونده: ' + escapeHtml(r.reported) + '<br>' + actions + '</div>';
+            }).join('');
+        }
+
+        async function updateReportsBadge() {
+            if (!isSuperAdmin()) {
+                document.getElementById('reports-nav-badge').style.display = 'none';
+                return;
+            }
+            const res = await sb.from('reports').select('status').eq('status', 'pending');
+            const count = res.data ? res.data.length : 0;
+            document.getElementById('reports-nav-badge').textContent = count;
+            document.getElementById('reports-nav-badge').style.display = count > 0 ? 'flex' : 'none';
+        }
+
+        async function reviewReportChat(chatKey) {
+            const existing = document.querySelector('.report-review-overlay');
+            if (existing) existing.remove();
+            
+            const res = await sb.from('chat_messages').select('*').eq('chat_key', chatKey).order('timestamp', { ascending: true });
+            const msgs = res.data || [];
+            
+            const html = '<div style="max-height:350px;overflow-y:auto;margin:10px 0;">' + msgs.map(m => 
+                '<div style="padding:8px;margin:4px 0;background:var(--glass);border-radius:8px;"><strong>' + escapeHtml(m.sender) + ':</strong> ' + escapeHtml(m.text) + ' <small>' + m.time + '</small></div>'
+            ).join('') + '</div>' || '<p>پیامی نیست</p>';
+            
+            const overlay = document.createElement('div');
+            overlay.className = 'page-overlay show report-review-overlay';
+            overlay.innerHTML = '<div class="page-content"><div class="page-header"><button class="btn btn-sm btn-outline" onclick="this.closest(\'.page-overlay\').remove()">⬅️ برگشت</button><h2>📋 چت</h2></div>' + html + '<button class="btn btn-danger" onclick="this.closest(\'.page-overlay\').remove()">❌ بستن</button></div>';
+            overlay.onclick = function(e) { if (e.target === overlay) overlay.remove(); };
+            document.body.appendChild(overlay);
+        }
+
+        async function reviewReportRoom(roomId) {
+            const existing = document.querySelector('.report-review-overlay');
+            if (existing) existing.remove();
+            
+            const msgsRes = await sb.from('room_messages').select('*').eq('room_id', roomId).order('timestamp', { ascending: true });
+            const msgs = msgsRes.data || [];
+            
+            const html = '<div style="max-height:350px;overflow-y:auto;margin:10px 0;">' + msgs.map(m => {
+                if (m.deleted_for_all) return '<div style="padding:8px;margin:4px 0;opacity:0.4;text-align:center;">🗑️ حذف شده</div>';
+                return '<div style="padding:8px;margin:4px 0;background:var(--glass);border-radius:8px;"><strong>' + escapeHtml(m.sender) + ':</strong> ' + escapeHtml(m.text) + ' <small>' + m.time + '</small></div>';
+            }).join('') + '</div>' || '<p>پیامی نیست</p>';
+            
+            const overlay = document.createElement('div');
+            overlay.className = 'page-overlay show report-review-overlay';
+            overlay.innerHTML = '<div class="page-content"><div class="page-header"><button class="btn btn-sm btn-outline" onclick="this.closest(\'.page-overlay\').remove()">⬅️ برگشت</button><h2>📋 کانال</h2></div>' + html + '<button class="btn btn-danger" onclick="this.closest(\'.page-overlay\').remove()">❌ بستن</button></div>';
+            overlay.onclick = function(e) { if (e.target === overlay) overlay.remove(); };
+            document.body.appendChild(overlay);
+        }
+
+        async function deleteReportedUser(username, reportId) {
+            if (!confirm('حذف کامل ' + username + '؟')) return;
+            await sb.from('users').delete().eq('username', username);
+            await sb.from('posts').delete().eq('author', username);
+            await sb.from('news').delete().eq('author', username);
+            await sb.from('mods').delete().eq('author', username);
+            await sb.from('room_messages').delete().eq('sender', username);
+            await sb.from('room_members').delete().eq('username', username);
+            await sb.from('chat_messages').delete().or('sender.eq.' + username + ',chat_key.ilike.%' + username + '%');
+            await sb.from('reports').update({ status: 'reviewed' }).eq('id', reportId);
+            loadReports();
+            loadUsersList();
+            showToast('کاربر حذف شد', 'success');
+        }
+
+        // مدیریت کاربران
+        async function loadUsersList() {
+            if (!window.currentUser || !isSuperAdmin()) {
+                document.getElementById('admin-users-section').style.display = 'none';
+                return;
+            }
+            document.getElementById('admin-users-section').style.display = 'block';
+            const res = await sb.from('users').select('*').order('id');
+            if (!res.data) return;
+            window.allUsersCache = res.data;
+            renderUsersList(res.data);
+        }
+
+        function renderUsersList(users) {
+            document.getElementById('users-list-container').innerHTML = users.map(u => {
+                const me = u.username === window.currentUser.username;
+                const adm = u.role === 'admin';
+                const sup = u.id === 1;
+                let act = '';
+                if (!me) {
+                    if (sup) act = '<span>🔒</span>';
+                    else if (adm) act = '<button class="action-btn" onclick="demoteToUser(\'' + u.username + '\')">⬇️</button><button class="action-btn delete-btn" onclick="deleteUser(\'' + u.username + '\')">🗑️</button>';
+                    else act = '<button class="action-btn" onclick="promoteToAdmin(\'' + u.username + '\')">👑</button><button class="action-btn delete-btn" onclick="deleteUser(\'' + u.username + '\')">🗑️</button>';
+                }
+                return '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px;margin:6px 0;background:var(--glass);border-radius:10px;"><span>' +
+                    escapeHtml(u.username) + ' ' + (sup ? '👑' : (adm ? '👑' : '👤')) + ' ' + (me ? '(شما)' : '') +
+                    '</span><span>' + act + '</span></div>';
+            }).join('');
+        }
+
+        function filterUsersList() {
+            const query = document.getElementById('users-search-input').value.trim().toLowerCase();
+            if (!query) { renderUsersList(window.allUsersCache); return; }
+            const filtered = window.allUsersCache.filter(u => u.username.toLowerCase().includes(query));
+            renderUsersList(filtered);
+        }
+
+        async function promoteToAdmin(u) {
+            await sb.from('users').update({ role: 'admin' }).eq('username', u);
+            loadUsersList();
+            showToast('ادمین شد 👑', 'success');
+            if (window.currentUser && window.currentUser.username === u) {
+                window.currentUser.role = 'admin';
+                localStorage.setItem('vibeflow_currentUser', JSON.stringify(window.currentUser));
+                updateUI();
+                document.getElementById('admin-badge').style.display = 'inline-block';
+                document.getElementById('create-post-btn').style.display = 'flex';
+            }
+        }
+
+        async function demoteToUser(u) {
+            const t = await sb.from('users').select('*').eq('username', u).single();
+            if (t.data && t.data.id === 1) { showToast('غیرقابل تغییر', 'warning'); return; }
+            await sb.from('users').update({ role: 'user' }).eq('username', u);
+            loadUsersList();
+            showToast('تنزل به کاربر عادی ⬇️', 'success');
+        }
+
+        async function deleteUser(u) {
+            const t = await sb.from('users').select('*').eq('username', u).single();
+            if (t.data && t.data.id === 1) { showToast('غیرقابل حذف', 'warning'); return; }
+            if (!confirm('حذف ' + u + '؟')) return;
+            await sb.from('users').delete().eq('username', u);
+            loadUsersList();
+        }
+
+        async function changeUsername() {
+            const nu = document.getElementById('new-username-input').value.trim();
+            if (!nu || nu.length < 3) { showToast('حداقل ۳ کاراکتر', 'error'); return; }
+            if (nu === window.currentUser.username) { showToast('نام تکراری', 'warning'); return; }
+            if (nu.toLowerCase() === 'admin' || nu === window.mainAdminUsername) { showToast('رزرو شده', 'error'); return; }
+            
+            const old = window.currentUser.username;
+            await sb.from('users').update({ username: nu }).eq('username', old);
+            await sb.from('posts').update({ author: nu }).eq('author', old);
+            await sb.from('news').update({ author: nu }).eq('author', old);
+            await sb.from('mods').update({ author: nu }).eq('author', old);
+            await sb.from('room_messages').update({ sender: nu }).eq('sender', old);
+            await sb.from('room_members').update({ username: nu }).eq('username', old);
+            await sb.from('rooms').update({ creator: nu }).eq('creator', old);
+            
+            window.currentUser.username = nu;
+            if (isSuperAdmin()) {
+                window._cachedMainAdmin = nu;
+                window.mainAdminUsername = nu;
+            }
+            localStorage.setItem('vibeflow_currentUser', JSON.stringify(window.currentUser));
+            updateUI();
+            showToast('تغییر کرد ✅', 'success');
+            window.postsCache = null;
+            window.newsCache = null;
+            window.modsCache = null;
+            window.roomsCache = null;
+            setCachedData('nexo_posts', null);
+            setCachedData('nexo_news', null);
+            setCachedData('nexo_mods', null);
+            setCachedData('nexo_rooms', null);
+            loadUsersList();
+            loadPosts(true);
+            loadNews(true);
+            loadMods(true);
+        }
+
+        function openChangePasswordPage() {
+            document.getElementById('change-password-page').classList.add('show');
+        }
+
+        function closeChangePasswordPage() {
+            document.getElementById('change-password-page').classList.remove('show');
+        }
+
+        async function changePasswordFromPage() {
+            const cp = document.getElementById('cp-current-password').value;
+            const np = document.getElementById('cp-new-password').value;
+            const cmp = document.getElementById('cp-confirm-password').value;
+            
+            if (!cp || !np || !cmp || cp !== window.currentUser.password || np !== cmp) {
+                showToast('اطلاعات نادرست', 'error');
+                return;
+            }
+            
+            await sb.from('users').update({ password: np }).eq('username', window.currentUser.username);
+            window.currentUser.password = np;
+            localStorage.setItem('vibeflow_currentUser', JSON.stringify(window.currentUser));
+            closeChangePasswordPage();
+            showToast('رمز تغییر کرد', 'success');
+        }
+
+        // پشتیبانی
+        function openSupportChatPage(user) {
+            window.activeSupportChat = user || window.mainAdminUsername;
+            document.getElementById('support-chat-partner-info').textContent = isSuperAdmin() 
+                ? 'گفتگو با ' + window.activeSupportChat 
+                : 'گفتگو با ادمین اصلی 👑';
+            document.getElementById('support-chat-page').classList.add('show');
+            renderSupportChatMessages();
+        }
+
+        function closeSupportChatPage() {
+            document.getElementById('support-chat-page').classList.remove('show');
+            window.activeSupportChat = null;
+        }
+
+        async function renderSupportChatMessages() {
+            if (!window.activeSupportChat) return;
+            const chatKey = getPrivateChatKey(window.currentUser.username, window.activeSupportChat);
+            const res = await sb.from('chat_messages').select('*').eq('chat_key', chatKey).order('timestamp', { ascending: true });
+            const container = document.getElementById('support-chat-messages');
+            container.innerHTML = (res.data || []).map(m => 
+                '<div class="chat-message ' + (m.sender === window.currentUser.username ? 'user' : 'other') + '"><strong>' + escapeHtml(m.sender) + '</strong><br>' + escapeHtml(m.text) + '<br><small>' + m.time + '</small></div>'
+            ).join('') || '<div style="text-align:center;padding:30px;">پیامی نیست ✍️</div>';
+            container.scrollTop = container.scrollHeight;
+        }
+
+        async function sendSupportChatMessage() {
+            const text = document.getElementById('support-chat-input').value.trim();
+            if (!text || !window.activeSupportChat) return;
+            const chatKey = getPrivateChatKey(window.currentUser.username, window.activeSupportChat);
+            await sb.from('chat_messages').insert([{
+                chat_key: chatKey,
+                sender: window.currentUser.username,
+                text: text,
+                time: new Date().toLocaleTimeString('fa-IR'),
+                timestamp: Date.now()
+            }]);
+            document.getElementById('support-chat-input').value = '';
+            renderSupportChatMessages();
+        }
+
+        async function loadSupportRequests() {
+            if (!isSuperAdmin()) return;
+            const res = await sb.from('chat_messages').select('chat_key');
+            const mainAdmin = await getMainAdminUsername();
+            const users = new Set();
+            if (res.data) {
+                res.data.forEach(d => {
+                    d.chat_key.split('___').forEach(p => {
+                        if (p !== mainAdmin) users.add(p);
+                    });
+                });
+            }
+            document.getElementById('support-requests-list').innerHTML = Array.from(users).map(u => 
+                '<div style="padding:10px;cursor:pointer;background:var(--glass);margin:6px 0;border-radius:8px;" onclick="openSupportChatPage(\'' + u + '\')">👤 ' + escapeHtml(u) + ' 💬</div>'
+            ).join('') || '<p style="text-align:center;padding:15px;">پیامی نیست</p>';
+        }
+
+        async function getMainAdminUsername() {
+            if (window._cachedMainAdmin) return window._cachedMainAdmin;
+            const res = await sb.from('users').select('*').eq('id', 1).single();
+            if (res.data) {
+                window._cachedMainAdmin = res.data.username;
+                window.mainAdminUsername = res.data.username;
+                return res.data.username;
+            }
+            return window.mainAdminUsername;
+        }
+
+        // ساخت پست
+        function openCreatePostPage(ed, et) {
+            window._isEditingPost = !!ed;
+            window._createMode = et || (window.currentTab === 'news' ? 'news' : 'post');
+            
+            document.getElementById('create-post-page-title').textContent = window._isEditingPost ? '✏️ ویرایش' : (window._createMode === 'news' ? '📰 خبر جدید' : '📷 پست جدید');
+            document.getElementById('post-title-group').style.display = window._createMode === 'news' ? 'block' : 'none';
+            
+            document.getElementById('post-content-input').value = ed ? (ed.content || '') : '';
+            document.getElementById('post-title-input').value = ed ? (ed.title || '') : '';
+            document.getElementById('post-image-url').value = ed ? (ed.image || '') : '';
+            document.getElementById('post-video-url').value = ed ? (ed.video || '') : '';
+            document.getElementById('post-edit-id').value = ed ? ed.id : '';
+            document.getElementById('post-edit-type').value = window._createMode;
+            
+            document.getElementById('post-image-preview').style.display = 'none';
+            
+            window.isSaving = false;
+            document.getElementById('create-post-page').classList.add('show');
+        }
+
+        function closeCreatePostPage() {
+            document.getElementById('create-post-page').classList.remove('show');
+        }
+
+        function previewUrlImage() {
+            const url = document.getElementById('post-image-url').value.trim();
+            const preview = document.getElementById('post-image-preview');
+            if (url) {
+                preview.src = url;
+                preview.style.display = 'block';
+                preview.onerror = function() {
+                    this.style.display = 'none';
+                };
+            } else {
+                preview.style.display = 'none';
+            }
+        }
+
+        async function savePostFromPage() {
+            if (window.isSaving) return;
+            
+            const content = document.getElementById('post-content-input').value.trim();
+            const title = document.getElementById('post-title-input').value.trim();
+            const imageUrl = document.getElementById('post-image-url').value.trim();
+            const videoUrl = document.getElementById('post-video-url').value.trim();
+            const editId = document.getElementById('post-edit-id').value;
+            
+            if (!window._isEditingPost && !content && !imageUrl && !videoUrl) {
+                showToast('حداقل یک فیلد را پر کنید', 'error');
+                return;
+            }
+            
+            window.isSaving = true;
+            disableBtn('save-post-page-btn', '⏳');
+            
+            const tableName = window._createMode === 'news' ? 'news' : 'posts';
+            const now = new Date();
+            
+            const data = {
+                id: window._isEditingPost ? editId : String(Date.now()),
+                author: window.currentUser.username,
+                role: window.currentUser.role,
+                date: now.toLocaleDateString('fa-IR'),
+                time: now.toLocaleTimeString('fa-IR'),
+                content: content,
+                title: tableName === 'news' ? title : '',
+                image: imageUrl || null,
+                video: videoUrl || null
+            };
+            
+            try {
+                const result = window._isEditingPost 
+                    ? await sb.from(tableName).update(data).eq('id', editId)
+                    : await sb.from(tableName).insert([data]);
+                
+                if (result.error) {
+                    showToast('خطا در ذخیره', 'error');
+                } else {
+                    closeCreatePostPage();
+                    window.postsCache = null;
+                    window.newsCache = null;
+                    setCachedData('nexo_posts', null);
+                    setCachedData('nexo_news', null);
+                    if (tableName === 'news') loadNews(true);
+                    else loadPosts(true);
+                    showToast('منتشر شد ✅', 'success');
+                }
+            } catch (e) {
+                showToast('خطا', 'error');
+            }
+            
+            window.isSaving = false;
+            enableBtn('save-post-page-btn', '🚀 انتشار');
+        }
+
+        async function editPost(type, id) {
+            if (!window.currentUser || window.currentUser.role !== 'admin') return;
+            const res = await sb.from(type).select('*').eq('id', id).single();
+            if (res.data) openCreatePostPage(res.data, type);
+        }
+
+        async function deleteItem(type, id) {
+            if (!window.currentUser || window.currentUser.role !== 'admin') return;
+            if (!confirm('حذف شود؟')) return;
+            await sb.from(type).delete().eq('id', id);
+            window.postsCache = null;
+            window.newsCache = null;
+            setCachedData('nexo_posts', null);
+            setCachedData('nexo_news', null);
+            if (type === 'posts') loadPosts(true);
+            else loadNews(true);
+            showToast('حذف شد', 'success');
+        }
+
+        // مادها
+        async function incrementDownload(modId) {
+            const res = await sb.from('mods').select('downloads').eq('id', modId).single();
+            if (res.data) {
+                await sb.from('mods').update({ downloads: (res.data.downloads || 0) + 1 }).eq('id', modId);
+                window.modsCache = null;
+                setCachedData('nexo_mods', null);
+                loadMods(true);
+            }
+        }
+
+        function openUploadModPage(ed) {
+            if (!isSuperAdmin()) { showToast('فقط ادمین اصلی', 'error'); return; }
+            window.isEditingMod = !!ed;
+            
+            document.getElementById('upload-mod-page-title').textContent = ed ? '✏️ ویرایش ماد' : '🎮 افزودن ماد جدید';
+            document.getElementById('mod-name-input').value = ed ? (ed.name || '') : '';
+            document.getElementById('mod-desc-input').value = ed ? (ed.description || '') : '';
+            document.getElementById('mod-download-url').value = ed ? (ed.download_url || '') : '';
+            document.getElementById('mod-edit-id-page').value = ed ? (ed.id || '') : '';
+            
+            window.isSaving = false;
+            document.getElementById('upload-mod-page').classList.add('show');
+        }
+
+        function closeUploadModPage() {
+            document.getElementById('upload-mod-page').classList.remove('show');
+        }
+
+        async function saveModFromPage() {
+            if (window.isSaving) return;
+            
+            const name = document.getElementById('mod-name-input').value.trim();
+            const desc = document.getElementById('mod-desc-input').value.trim();
+            const downloadUrl = document.getElementById('mod-download-url').value.trim();
+            
+            if (!name) { showToast('نام ماد الزامی است', 'error'); return; }
+            if (!downloadUrl) { showToast('لینک دانلود الزامی است', 'error'); return; }
+            
+            window.isSaving = true;
+            disableBtn('save-mod-page-btn', '⏳');
+            
+            const now = new Date();
+            const editId = document.getElementById('mod-edit-id-page').value;
+            
+            const data = {
+                id: window.isEditingMod ? editId : String(Date.now()),
+                name: name,
+                description: desc,
+                author: window.currentUser.username,
+                date: now.toLocaleDateString('fa-IR'),
+                time: now.toLocaleTimeString('fa-IR'),
+                download_url: downloadUrl
+            };
+            
+            if (!window.isEditingMod) data.downloads = 0;
+            
+            try {
+                const result = window.isEditingMod
+                    ? await sb.from('mods').update(data).eq('id', editId)
+                    : await sb.from('mods').insert([data]);
+                
+                if (result.error) {
+                    showToast('خطا', 'error');
+                } else {
+                    closeUploadModPage();
+                    window.modsCache = null;
+                    setCachedData('nexo_mods', null);
+                    loadMods(true);
+                    showToast('✅ ماد منتشر شد', 'success');
+                }
+            } catch (e) {
+                showToast('خطا', 'error');
+            }
+            
+            window.isSaving = false;
+            enableBtn('save-mod-page-btn', '🚀 انتشار');
+        }
+
+        async function editModPage(id) {
+            const res = await sb.from('mods').select('*').eq('id', id).single();
+            if (res.data) openUploadModPage(res.data);
+        }
+
+        async function deleteMod(id) {
+            if (!isSuperAdmin()) return;
+            if (!confirm('حذف این ماد؟')) return;
+            await sb.from('mods').delete().eq('id', id);
+            window.modsCache = null;
+            setCachedData('nexo_mods', null);
+            loadMods(true);
+            showToast('ماد حذف شد', 'success');
+        }
+
+        // بستن منوها با کلیک خارج
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.context-menu') && !e.target.closest('.three-dots') && !e.target.closest('.admin-room-delete')) {
+                closeAllMenus();
+            }
+        });
+
+        // راه‌اندازی اولیه
+        (async function init() {
+            const res = await sb.from('users').select('*').eq('id', 1).single();
+            if (res.data) {
+                window._cachedMainAdmin = res.data.username;
+                window.mainAdminUsername = res.data.username;
+            } else {
+                const insertRes = await sb.from('users').insert([{
+                    username: 'amir hossein',
+                    password: 'amir hossein',
+                    role: 'admin'
+                }]).select().single();
+                if (insertRes.data) {
+                    window._cachedMainAdmin = insertRes.data.username;
+                    window.mainAdminUsername = insertRes.data.username;
+                }
+            }
+            
+            const saved = JSON.parse(localStorage.getItem('vibeflow_currentUser'));
+            if (saved) {
+                window.currentUser = saved;
+                showApp();
+                startLivePolling();
+                
+                const userRes = await sb.from('users').select('*').eq('username', saved.username).single();
+                if (!userRes.data || userRes.data.password !== saved.password) {
+                    localStorage.removeItem('vibeflow_currentUser');
+                    clearCache();
+                    window.currentUser = null;
+                    document.getElementById('app-container').style.display = 'none';
+                    document.getElementById('auth-container').style.display = 'flex';
+                    showToast('لطفاً دوباره وارد شوید', 'warning');
+                    return;
+                }
+                
+                window.currentUser = userRes.data;
+                if (userRes.data.id === 1) {
+                    window._cachedMainAdmin = userRes.data.username;
+                    window.mainAdminUsername = userRes.data.username;
+                }
+            }
+        })();
+    </script>
+</body>
+</html>
